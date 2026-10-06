@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko" data-lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Static app: no network access is needed or allowed at runtime. -->
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Vehicle Dynamics Workbench</title>
+  <meta name="description" content="Planar 3DOF vehicle dynamics workbench: ISO/FMVSS handling tests, linear stability and frequency analysis, real-time driving simulator. Runs offline in the browser.">
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="src/ui/boot.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="appbar">
+      <a class="brand" href="#vehicle" aria-label="Vehicle Dynamics Workbench">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="9" y="3" width="14" height="26" rx="4" fill="var(--accent)"/>
+          <rect x="5" y="6" width="5" height="7" rx="1.5" fill="var(--ink-2)"/>
+          <rect x="22" y="6" width="5" height="7" rx="1.5" fill="var(--ink-2)"/>
+          <rect x="5" y="19" width="5" height="7" rx="1.5" fill="var(--ink-2)"/>
+          <rect x="22" y="19" width="5" height="7" rx="1.5" fill="var(--ink-2)"/>
+          <circle cx="16" cy="16" r="4" fill="var(--surface)"/>
+          <path d="M16 16h4a4 4 0 0 0-4-4zM16 16h-4a4 4 0 0 0 4 4z" fill="var(--ink)"/>
+        </svg>
+        <span class="brand-name">Vehicle Dynamics Workbench</span>
+      </a>
+      <nav class="tabs" role="tablist" aria-label="Workspaces">
+        <button class="tab" role="tab" id="tab-vehicle" aria-controls="view-vehicle" data-view="vehicle"><span lang="ko">차량 제원</span><span lang="en">Vehicle</span></button>
+        <button class="tab" role="tab" id="tab-maneuvers" aria-controls="view-maneuvers" data-view="maneuvers"><span lang="ko">시험 해석</span><span lang="en">Test maneuvers</span></button>
+        <button class="tab" role="tab" id="tab-linear" aria-controls="view-linear" data-view="linear"><span lang="ko">선형 해석</span><span lang="en">Linear analysis</span></button>
+        <button class="tab" role="tab" id="tab-drive" aria-controls="view-drive" data-view="drive"><span lang="ko">실시간 주행</span><span lang="en">Driving simulator</span></button>
+        <button class="tab" role="tab" id="tab-theory" aria-controls="view-theory" data-view="theory"><span lang="ko">이론·문서</span><span lang="en">Theory</span></button>
+      </nav>
+      <div class="appbar-tools">
+        <button class="vehicle-chip" type="button" id="vehicle-chip">
+          <span lang="ko">차량</span><span lang="en">Vehicle</span>
+          <strong id="vehicle-chip-name"></strong>
+        </button>
+        <div class="seg" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="ko" aria-pressed="false">KO</button>
+          <button type="button" data-lang-btn="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="btn icon ghost" type="button" id="theme-btn"></button>
+      </div>
+    </header>
+
+    <main id="views">
+      <section class="view" id="view-vehicle" role="tabpanel" aria-labelledby="tab-vehicle"></section>
+      <section class="view" id="view-maneuvers" role="tabpanel" aria-labelledby="tab-maneuvers"></section>
+      <section class="view" id="view-linear" role="tabpanel" aria-labelledby="tab-linear"></section>
+      <section class="view" id="view-drive" role="tabpanel" aria-labelledby="tab-drive"></section>
+      <section class="view" id="view-theory" role="tabpanel" aria-labelledby="tab-theory"></section>
+    </main>
+
+    <footer class="statusbar" id="statusbar"></footer>
+  </div>
+
+  <noscript>
+    <p style="padding:24px">This application requires JavaScript. / 이 프로그램은 JavaScript가 필요합니다.</p>
+  </noscript>
+
+  <!-- physics core (no DOM access) -->
+  <script src="src/core/vd.js"></script>
+  <script src="src/core/params.js"></script>
+  <script src="src/core/tire.js"></script>
+  <script src="src/core/model.js"></script>
+  <script src="src/core/linear.js"></script>
+  <script src="src/core/control.js"></script>
+  <script src="src/core/sim.js"></script>
+  <script src="src/core/metrics.js"></script>
+  <script src="src/core/maneuvers.js"></script>
+  <!-- user interface -->
+  <script src="src/ui/dom.js"></script>
+  <script src="src/ui/store.js"></script>
+  <script src="src/ui/plot.js"></script>
+  <script src="src/ui/forms.js"></script>
+  <script src="src/ui/diagram.js"></script>
+  <script src="src/ui/mathml.js"></script>
+  <script src="src/ui/views/vehicle.js"></script>
+  <script src="src/ui/views/maneuvers.js"></script>
+  <script src="src/ui/views/linear.js"></script>
+  <script src="src/ui/views/drive.js"></script>
+  <script src="src/ui/views/theory.js"></script>
+  <script src="src/ui/app.js"></script>
+</body>
+</html>

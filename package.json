@@ -1,0 +1,14 @@
+{
+  "name": "vehicle-dynamics-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Planar 3DOF vehicle dynamics workbench: ISO/FMVSS handling tests, linear stability analysis and a real-time driving simulator. Static web app, no dependencies.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/run.js",
+    "docs": "node tools/build-readme-assets.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

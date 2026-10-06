@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Dynamics Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            color: #eee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+        }
+        /* Common Panel Style */
+        .panel {
+            position: absolute;
+            top: 20px;
+            width: 260px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            font-size: 0.85rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #ui-panel {
+            right: 20px;
+        }
+        #preset-panel {
+            left: 20px;
+        }
+        h1 {
+            font-size: 1.1rem;
+            margin: 0 0 15px 0;
+            color: #ff4757;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.0rem;
+            margin: 0 0 15px 0;
+            color: #4facfe;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-family: monospace;
+            color: #aaa;
+        }
+        .data-val {
+            color: #fff;
+            font-weight: bold;
+        }
+        .control-group {
+            margin-top: 15px;
+            border-top: 1px solid #444;
+            padding-top: 12px;
+        }
+        .control-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4facfe;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        button {
+            flex: 1;
+            padding: 8px 6px;
+            background: #333;
+            border: 1px solid #555;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+        }
+        button.preset-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding-left: 10px;
+            border-left: 4px solid transparent;
+        }
+        button.preset-btn:hover {
+            background: #444;
+            border-left-color: #aaa;
+        }
+        button.active {
+            background: #ff4757;
+            color: white;
+            border-color: #ff4757;
+        }
+        button:hover:not(.active) {
+            background: #444;
+        }
+        input[type=range], input[type=number] {
+            width: 100%;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+        input[type=number] {
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .legend {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .color-box {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 5px;
+        }
+        #g-force-meter {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #444;
+            border-radius: 50%;
+            margin: 10px auto;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+        }
+        #g-dot {
+            width: 6px;
+            height: 6px;
+            background: #ff4757;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 5px #ff4757;
+        }
+        /* Tutorial overlay */
+        #tutorial {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            pointer-events: none;
+            color: #ccc;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .status-text {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-align: right;
+            margin-top: -5px;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+        .preset-desc {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+        #trailer-indicator {
+            margin-top: 10px;
+            padding: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="simCanvas"></canvas>
+
+    <!-- Left Panel: Presets -->
+    <div id="preset-panel" class="panel">
+        <h2>차량 프리셋 (Presets)</h2>
+        
+        <button class="preset-btn" onclick="applyPreset('sedan')">
+            🚗 일반 세단 (Sedan)
+        </button>
+        <div class="preset-desc">FWD, 표준 성능, 일반 타이어</div>
+
+        <button class="preset-btn" onclick="applyPreset('suv')">
+            🚙 SUV
+        </button>
+        <div class="preset-desc">AWD, 높은 무게중심, 무거운 차체</div>
+
+        <button class="preset-btn" onclick="applyPreset('sports')">
+            🏎️ 스포츠카 (Sports)
+        </button>
+        <div class="preset-desc">RWD, 고출력, 스포츠 타이어</div>
+
+        <button class="preset-btn" onclick="applyPreset('racing')">
+            🏁 레이싱카 (Racing)
+        </button>
+        <div class="preset-desc">RWD, 초경량, 슬릭 타이어, 강력한 다운포스</div>
+
+        <button class="preset-btn" onclick="applyPreset('drift')">
+            💨 드리프트카 (Drift)
+        </button>
+        <div class="preset-desc">RWD, 타이어 그립 낮음, 오버스티어 세팅</div>
+
+        <button class="preset-btn" onclick="applyPreset('bus')">
+            🚌 버스 (Bus)
+        </button>
+        <div class="preset-desc">RWD, 매우 무거움, 느린 조향, 긴 제동거리</div>
+
+        <button class="preset-btn" onclick="applyPreset('truck')">
+            🚚 트럭 (Truck) + 트레일러
+        </button>
+        <div class="preset-desc">RWD, 높은 토크, 트레일러 견인 시 물리 적용</div>
+    </div>
+
+    <!-- Right Panel: Controls & Telemetry -->
+    <div id="ui-panel" class="panel">
+        <h1>Vehicle Dynamics</h1>
+        
+        <div id="g-force-meter">
+            <div id="g-dot"></div>
+        </div>
+        <div style="text-align:center; font-size:0.75rem; color:#aaa; margin-bottom:10px;">G-Force (Friction Circle)</div>
+
+        <div class="data-row">
+            <span>Speed:</span>
+            <span id="speed-display" class="data-val">0 km/h</span>
+        </div>
+        <div class="data-row">
+            <span>Slip (Rear):</span>
+            <span id="slip-display" class="data-val">0°</span>
+        </div>
+        <div class="data-row">
+            <span>Lat G:</span>
+            <span id="lat-g-display" class="data-val">0.0 G</span>
+        </div>
+        <div class="data-row">
+            <span>Weight:</span>
+            <span id="mass-display" class="data-val">1200 kg</span>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">최고 속도 (Max Speed km/h)</span>
+            <input type="number" id="max-speed-input" value="200" min="50" max="400" step="10">
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">트레일러 (Trailer)</span>
+            <button onclick="toggleTrailer()" id="btn-trailer" style="width:100%">트레일러 연결 (Connect)</button>
+            <div id="trailer-load-group" style="display:none; margin-top: 10px;">
+                <span class="control-label">트레일러 적재량 (Cargo)</span>
+                <input type="range" id="trailer-load-slider" min="0" max="20000" step="500" value="0" oninput="updateTrailerLoad(this.value)">
+                <div id="trailer-load-status" class="status-text">빈 트레일러 (0 kg)</div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">구동 방식 (Drivetrain)</span>
+            <div class="btn-group">
+                <button onclick="car.setDrive('FWD')" id="btn-fwd">FWD</button>
+                <button onclick="car.setDrive('RWD')" id="btn-rwd" class="active">RWD</button>
+                <button onclick="car.setDrive('AWD')" id="btn-awd">AWD</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">전자 제어 (Assist)</span>
+            <div class="btn-group">
+                <button onclick="toggleAssist('ABS')" id="btn-abs" class="active">ABS On</button>
+                <button onclick="toggleAssist('TCS')" id="btn-tcs">TCS Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">노면 상태 (Road Friction)</span>
+            <input type="range" id="road-slider" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateRoad(this.value)">
+            <div id="road-status" class="status-text">일반 아스팔트 (1.0)</div>
+        </div>
+
+        <div class="control-group" style="margin-top: 0; border-top: none; padding-top: 0;">
+            <span class="control-label">타이어 종류 (Tire Compound)</span>
+            <input type="range" id="tire-slider" min="0.8" max="1.5" step="0.1" value="1.0" oninput="updateTire(this.value)">
+            <div id="tire-status" class="status-text">스포츠 타이어 (1.0)</div>
+        </div>
+
+        <div class="legend">
+            <div><span class="color-box" style="background:lime"></span>그립 주행 (Grip)</div>
+            <div><span class="color-box" style="background:yellow"></span>한계점 (Limit)</div>
+            <div><span class="color-box" style="background:red"></span>슬립/드리프트 (Slip)</div>
+            <div><span class="color-box" style="background:cyan"></span>하중 벡터 (Load)</div>
+        </div>
+    </div>
+
+    <div id="tutorial">
+        WASD 또는 화살표 키로 운전 | Space: 사이드 브레이크
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const keys = { w: false, a: false, s: false, d: false, space: false };
+
+        const PI = Math.PI;
+        const METER_TO_PIXEL = 26; 
+
+        // Particle System
+        class Particle {
+            constructor(x, y, vx, vy) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.alpha = 0.8;
+                this.size = Math.random() * 3 + 2;
+                this.life = 1.0;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.size += 0.2;
+                this.alpha -= 0.02;
+                this.life -= 0.02;
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+            }
+            draw(ctx, offsetX, offsetY) {
+                // Not used currently but class kept for structure
+                ctx.fillStyle = `rgba(200, 200, 200, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x * METER_TO_PIXEL - offsetX, this.y * METER_TO_PIXEL - offsetY, this.size, 0, PI*2);
+                ctx.fill();
+            }
+        }
+
+        // Vehicle Presets Database
+        const VEHICLE_PRESETS = {
+            sedan: {
+                mass: 1400, inertia: 1800, wheelBase: 2.7, trackWidth: 1.6,
+                engineForce: 8000, brakeForce: 10000, cgHeight: 0.5,
+                driveType: 'FWD', tireFriction: 1.0, maxSpeed: 190,
+                abs: true, tcs: true, steerSpeed: 5, suspensionStiffness: 0.5, hasTrailer: false
+            },
+            suv: {
+                mass: 2000, inertia: 2500, wheelBase: 2.9, trackWidth: 1.8,
+                engineForce: 9000, brakeForce: 12000, cgHeight: 0.75, 
+                driveType: 'AWD', tireFriction: 0.95, maxSpeed: 180,
+                abs: true, tcs: true, steerSpeed: 4, suspensionStiffness: 0.8, hasTrailer: false
+            },
+            sports: {
+                mass: 1300, inertia: 1500, wheelBase: 2.5, trackWidth: 1.7,
+                engineForce: 14000, brakeForce: 15000, cgHeight: 0.4,
+                driveType: 'RWD', tireFriction: 1.2, maxSpeed: 280,
+                abs: true, tcs: false, steerSpeed: 6, suspensionStiffness: 0.3, hasTrailer: false
+            },
+            racing: {
+                mass: 750, inertia: 900, wheelBase: 2.8, trackWidth: 1.9,
+                engineForce: 18000, brakeForce: 25000, cgHeight: 0.3,
+                driveType: 'RWD', tireFriction: 1.5, maxSpeed: 340,
+                abs: false, tcs: false, steerSpeed: 8, aero: true, suspensionStiffness: 0.1, hasTrailer: false
+            },
+            drift: {
+                mass: 1350, inertia: 1600, wheelBase: 2.6, trackWidth: 1.7,
+                engineForce: 13000, brakeForce: 12000, cgHeight: 0.45,
+                driveType: 'RWD', tireFriction: 0.9, maxSpeed: 220, 
+                abs: false, tcs: false, steerSpeed: 7, suspensionStiffness: 0.4, hasTrailer: false
+            },
+            bus: {
+                mass: 10000, inertia: 15000, wheelBase: 6.0, trackWidth: 2.5,
+                engineForce: 20000, brakeForce: 30000, cgHeight: 1.5,
+                driveType: 'RWD', tireFriction: 0.85, maxSpeed: 100,
+                abs: true, tcs: true, steerSpeed: 2, suspensionStiffness: 1.5, hasTrailer: false
+            },
+            truck: {
+                mass: 5000, inertia: 8000, wheelBase: 3.8, trackWidth: 2.3,
+                engineForce: 22000, brakeForce: 20000, cgHeight: 1.0,
+                driveType: 'RWD', tireFriction: 0.9, maxSpeed: 130,
+                abs: true, tcs: false, steerSpeed: 3, suspensionStiffness: 1.2, hasTrailer: true
+            }
+        };
+
+        class Trailer {
+            constructor() {
+                this.baseMass = 1500; // Empty trailer mass (as requested)
+                this.cargoMass = 0;   // Additional cargo
+                this.mass = this.baseMass + this.cargoMass;
+                this.inertia = 12000;
+                this.length = 8.0; 
+                this.width = 2.5;
+                this.hitchDist = 4.0; 
+                this.axleDist = 3.5; 
+                
+                this.angle = 0;
+                this.angularVel = 0;
+                this.slipAngle = 0;
+            }
+
+            setCargo(amount) {
+                this.cargoMass = parseFloat(amount);
+                this.mass = this.baseMass + this.cargoMass;
+                // Inertia increases with mass roughly
+                this.inertia = 12000 + (this.cargoMass * 2.0); 
+            }
+
+            update(hitchX, hitchY, hitchVx, hitchVy, dt, roadFriction, truckAngle) {
+                // 1. Angle Constraint (Jackknife Prevention)
+                // Normalize diff to -PI ~ PI
+                let diff = this.angle - truckAngle;
+                while (diff <= -Math.PI) diff += Math.PI * 2;
+                while (diff > Math.PI) diff -= Math.PI * 2;
+
+                const limit = 80 * Math.PI / 180; // 80 degrees limit
+                
+                // Hard constraint on position if exceeding angle
+                if (diff > limit) {
+                    this.angle = truckAngle + limit;
+                    if (this.angularVel > 0) this.angularVel = 0; 
+                } else if (diff < -limit) {
+                    this.angle = truckAngle - limit;
+                    if (this.angularVel < 0) this.angularVel = 0;
+                }
+
+                // 2. Physics Update
+                const cgX = hitchX - Math.cos(this.angle) * this.hitchDist;
+                const cgY = hitchY - Math.sin(this.angle) * this.hitchDist;
+
+                const cosT = Math.cos(this.angle);
+                const sinT = Math.sin(this.angle);
+
+                const vLongHitch = hitchVx * cosT + hitchVy * sinT;
+                const vLatHitch = -hitchVx * sinT + hitchVy * cosT;
+
+                const distHitchToAxle = this.hitchDist + this.axleDist;
+                const vLatAxle = vLatHitch - this.angularVel * distHitchToAxle;
+                
+                const vSafe = Math.max(1.0, Math.abs(vLongHitch));
+                this.slipAngle = Math.atan2(vLatAxle, vSafe);
+
+                const trailerGrip = 0.8 * roadFriction; 
+                const maxForce = (this.mass * 9.81 / 2) * trailerGrip; 
+                const stiffness = 60000 + (this.cargoMass * 10); // Stiffer when loaded
+                
+                let fy = -stiffness * this.slipAngle;
+                fy = Math.max(-maxForce, Math.min(maxForce, fy));
+
+                const I_hitch = this.inertia + this.mass * this.hitchDist * this.hitchDist;
+                const torque = fy * distHitchToAxle;
+                
+                const baseDamping = -2000.0 * this.angularVel; 
+                const speedDamping = -500.0 * this.angularVel * Math.abs(vLongHitch); 
+                const totalDamping = baseDamping + speedDamping;
+                
+                const angularAccel = (torque + totalDamping) / I_hitch;
+
+                this.angularVel += angularAccel * dt;
+                
+                // Clamp angular velocity
+                this.angularVel = Math.max(-4.0, Math.min(4.0, this.angularVel));
+                
+                this.angle += this.angularVel * dt;
+
+                // Reaction Forces
+                // --- BUG FIX: Stabilized Hitch Reaction ---
+                // Previously, 100% of the trailer tire force (-fy) was applied to the truck hitch.
+                // This created a positive feedback loop (resonance) causing violent fishtailing at start.
+                // We reduce the lateral reaction gain to 0.4 to simulate energy dissipation and bushing compliance.
+                
+                const reactionFxLocal = 0; 
+                const reactionFyLocal = -fy * 0.4; 
+
+                const rFx = reactionFxLocal * cosT - reactionFyLocal * sinT;
+                const rFy = reactionFxLocal * sinT + reactionFyLocal * cosT;
+
+                return { fx: rFx, fy: rFy };
+            }
+
+            draw(ctx, hitchX, hitchY, offsetX, offsetY) {
+                const cgX = hitchX - Math.cos(this.angle) * this.hitchDist;
+                const cgY = hitchY - Math.sin(this.angle) * this.hitchDist;
+
+                ctx.save();
+                ctx.translate(cgX * METER_TO_PIXEL - offsetX, cgY * METER_TO_PIXEL - offsetY);
+                ctx.rotate(this.angle);
+
+                // Trailer Body
+                ctx.fillStyle = '#666';
+                ctx.fillRect(-this.axleDist * METER_TO_PIXEL - 5, -this.width/2 * METER_TO_PIXEL, (this.hitchDist + this.axleDist) * METER_TO_PIXEL + 5, this.width * METER_TO_PIXEL);
+                
+                // Load Indicator (Show cargo box if loaded)
+                if (this.cargoMass > 1000) {
+                    ctx.fillStyle = '#5d4037'; // Brown box
+                    const loadRatio = Math.min(1.0, this.cargoMass / 20000);
+                    ctx.fillRect(-this.axleDist * METER_TO_PIXEL, -this.width/2 * METER_TO_PIXEL + 2, (this.hitchDist + this.axleDist - 2) * METER_TO_PIXEL, (this.width * METER_TO_PIXEL - 4) * loadRatio);
+                }
+
+                ctx.strokeStyle = '#444';
+                ctx.strokeRect(-this.axleDist * METER_TO_PIXEL - 5, -this.width/2 * METER_TO_PIXEL, (this.hitchDist + this.axleDist) * METER_TO_PIXEL + 5, this.width * METER_TO_PIXEL);
+
+                // Axle/Wheels
+                ctx.fillStyle = '#111';
+                const wLen = 16;
+                const wWid = 8;
+                ctx.fillRect(-this.axleDist * METER_TO_PIXEL - wLen/2, -this.width/2 * METER_TO_PIXEL - wWid, wLen, wWid);
+                ctx.fillRect(-this.axleDist * METER_TO_PIXEL - wLen/2, this.width/2 * METER_TO_PIXEL, wLen, wWid);
+
+                ctx.restore();
+                
+                // Hitch Joint
+                ctx.fillStyle = '#aaa';
+                ctx.beginPath();
+                ctx.arc(hitchX * METER_TO_PIXEL - offsetX, hitchY * METER_TO_PIXEL - offsetY, 4, 0, PI*2);
+                ctx.fill();
+            }
+        }
+
+        class Car {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.vx = 0; 
+                this.vy = 0; 
+                this.angle = 0; 
+                this.angularVel = 0;
+
+                this.resetProperties();
+                this.roadFriction = 1.0;
+                
+                this.steerAngle = 0;
+                this.throttle = 0;
+                this.brake = 0;
+                this.eBrake = 0;
+
+                this.speed = 0; 
+                this.slipAngleFront = 0;
+                this.slipAngleRear = 0;
+                this.weightFront = 0;
+                this.weightRear = 0;
+                this.latG = 0;
+                this.longG = 0; 
+                
+                this.skidMarks = [];
+            }
+
+            resetProperties() {
+                this.mass = 1200; 
+                this.inertia = 1500; 
+                this.wheelBase = 2.6; 
+                this.trackWidth = 1.6; 
+                this.cgHeight = 0.5;
+                this.cgToFront = this.wheelBase / 2;
+                this.cgToRear = this.wheelBase / 2;
+
+                this.tireFriction = 1.0;
+                this.tireStiffness = 50000; 
+                this.driveType = 'RWD';
+                this.engineForce = 12000; 
+                this.brakeForce = 12000;
+                this.eBrakeForce = 8000;
+                this.steerSpeed = 5;
+                this.maxSpeed = 200;
+                this.suspensionStiffness = 0.5; 
+                
+                this.absEnabled = true;
+                this.tcsEnabled = false;
+                this.hasAero = false;
+                
+                this.trailer = null; 
+                this.hitchOffset = 1.5; 
+            }
+
+            loadPreset(name) {
+                const p = VEHICLE_PRESETS[name];
+                if(!p) return;
+
+                this.mass = p.mass;
+                this.inertia = p.inertia;
+                this.wheelBase = p.wheelBase;
+                this.trackWidth = p.trackWidth;
+                this.cgHeight = p.cgHeight;
+                this.cgToFront = p.wheelBase / 2; 
+                this.cgToRear = p.wheelBase / 2;
+
+                this.engineForce = p.engineForce;
+                this.brakeForce = p.brakeForce;
+                
+                this.setDrive(p.driveType);
+                this.tireFriction = p.tireFriction;
+                this.maxSpeed = p.maxSpeed;
+                
+                this.absEnabled = p.abs;
+                this.tcsEnabled = p.tcs;
+                this.steerSpeed = p.steerSpeed || 5;
+                this.hasAero = p.aero || false;
+                this.suspensionStiffness = p.suspensionStiffness || 0.5;
+                
+                this.hitchOffset = this.cgToRear + 0.5; 
+
+                if (p.hasTrailer) {
+                    this.addTrailer();
+                } else {
+                    this.removeTrailer();
+                }
+
+                this.updatePhysicsProperties();
+                this.updateUIValues();
+            }
+
+            addTrailer() {
+                this.trailer = new Trailer();
+                this.trailer.angle = this.angle; 
+                document.getElementById('btn-trailer').classList.add('active');
+                document.getElementById('btn-trailer').innerText = "트레일러 해제 (Disconnect)";
+                document.getElementById('trailer-load-group').style.display = 'block';
+            }
+
+            removeTrailer() {
+                this.trailer = null;
+                document.getElementById('btn-trailer').classList.remove('active');
+                document.getElementById('btn-trailer').innerText = "트레일러 연결 (Connect)";
+                document.getElementById('trailer-load-group').style.display = 'none';
+            }
+
+            setDrive(type) {
+                this.driveType = type;
+                document.getElementById('btn-fwd').className = type === 'FWD' ? 'active' : '';
+                document.getElementById('btn-rwd').className = type === 'RWD' ? 'active' : '';
+                document.getElementById('btn-awd').className = type === 'AWD' ? 'active' : '';
+            }
+
+            updateUIValues() {
+                document.getElementById('max-speed-input').value = this.maxSpeed;
+                document.getElementById('tire-slider').value = this.tireFriction;
+                
+                document.getElementById('btn-abs').className = this.absEnabled ? 'active' : '';
+                document.getElementById('btn-abs').innerText = this.absEnabled ? 'ABS On' : 'ABS Off';
+                document.getElementById('btn-tcs').className = this.tcsEnabled ? 'active' : '';
+                document.getElementById('btn-tcs').innerText = this.tcsEnabled ? 'TCS On' : 'TCS Off';
+
+                let totalMass = this.mass;
+                if (this.trailer) totalMass += this.trailer.mass;
+                document.getElementById('mass-display').innerText = totalMass + " kg";
+                
+                updateTire(this.tireFriction); 
+            }
+
+            updatePhysicsProperties() {
+                this.frontGrip = this.tireFriction * this.roadFriction;
+                this.rearGrip = this.tireFriction * this.roadFriction;
+            }
+
+            update(dt) {
+                const speedSq = this.vx*this.vx + this.vy*this.vy;
+                const currentSpeedKmH = Math.sqrt(speedSq) * 3.6;
+
+                const targetSteer = (keys.a ? -1 : 0) + (keys.d ? 1 : 0);
+                const speedFactor = Math.max(0.1, 1.0 - (currentSpeedKmH / (this.maxSpeed * 1.5))); 
+                
+                this.steerAngle += (targetSteer * 0.6 * speedFactor - this.steerAngle) * this.steerSpeed * dt;
+
+                this.throttle = keys.w ? 1 : 0;
+                this.brake = keys.s ? 1 : 0;
+                this.eBrake = keys.space ? 1 : 0;
+
+                const g = 9.81;
+                let effectiveMass = this.mass;
+                if (this.trailer) {
+                    effectiveMass += this.trailer.mass; 
+                }
+
+                const weightTotal = this.mass * g;
+                let wf = weightTotal * (this.cgToRear / this.wheelBase);
+                let wr = weightTotal * (this.cgToFront / this.wheelBase);
+
+                const accelFactor = (this.throttle * this.engineForce - this.brake * this.brakeForce) / effectiveMass;
+                const loadTransferLong = (accelFactor * this.cgHeight / this.wheelBase) * this.mass;
+                
+                this.longG = accelFactor / 9.81; 
+
+                wf -= loadTransferLong;
+                wr += loadTransferLong;
+
+                wf = Math.max(0, wf);
+                wr = Math.max(0, wr);
+
+                this.weightFront = wf;
+                this.weightRear = wr;
+
+                const vLong = Math.cos(this.angle) * this.vx + Math.sin(this.angle) * this.vy;
+                const vLat = -Math.sin(this.angle) * this.vx + Math.cos(this.angle) * this.vy;
+                const vSafe = Math.max(1.0, Math.abs(vLong));
+
+                let alphaF = Math.atan2(vLat + this.angularVel * this.cgToFront, vSafe) - this.steerAngle;
+                let alphaR = Math.atan2(vLat - this.angularVel * this.cgToRear, vSafe);
+
+                if (vLong < -1.0) {
+                    alphaF = -alphaF;
+                    alphaR = -alphaR;
+                }
+
+                this.slipAngleFront = alphaF;
+                this.slipAngleRear = alphaR;
+
+                let aeroDownforce = 0;
+                if (this.hasAero) {
+                    aeroDownforce = 1.5 * currentSpeedKmH; 
+                }
+
+                const maxLatForceF = (wf + aeroDownforce*0.4) * this.frontGrip;
+                const maxLatForceR = (wr + aeroDownforce*0.6) * this.rearGrip;
+
+                let fyF = -this.tireStiffness * alphaF;
+                let fyR = -this.tireStiffness * alphaR;
+
+                fyF = Math.max(-maxLatForceF, Math.min(maxLatForceF, fyF));
+                fyR = Math.max(-maxLatForceR, Math.min(maxLatForceR, fyR));
+
+                let fxF = 0;
+                let fxR = 0;
+
+                const maxSpeedInput = document.getElementById('max-speed-input');
+                this.maxSpeed = maxSpeedInput ? parseFloat(maxSpeedInput.value) : this.maxSpeed;
+                
+                let torqueFactor = 1.0 - (currentSpeedKmH / this.maxSpeed);
+                if (torqueFactor < 0) torqueFactor = 0;
+                
+                let traction = this.throttle * this.engineForce * torqueFactor;
+                
+                if (this.tcsEnabled) {
+                    const tractionLimit = Math.sqrt(Math.max(0, Math.pow(wr * this.rearGrip, 2) - Math.pow(fyR, 2)));
+                    if (this.driveType === 'RWD' && traction > tractionLimit) traction = tractionLimit;
+                }
+
+                if (this.driveType === 'FWD') fxF += traction;
+                else if (this.driveType === 'RWD') fxR += traction;
+                else if (this.driveType === 'AWD') { fxF += traction * 0.5; fxR += traction * 0.5; }
+
+                let brakeF = this.brake * this.brakeForce * 0.6;
+                let brakeR = this.brake * this.brakeForce * 0.4;
+                let eBrakeForce = this.eBrake * this.eBrakeForce;
+
+                if (this.absEnabled) {
+                    const limitF = Math.max(0, wf * 0.8);
+                    if (brakeF > limitF) brakeF = limitF;
+                }
+
+                fxF -= brakeF;
+                fxR -= brakeR + eBrakeForce;
+
+                const maxTotF = (wf + aeroDownforce*0.4) * this.frontGrip;
+                const maxTotR = (wr + aeroDownforce*0.6) * this.rearGrip;
+                
+                const currentTotF = Math.sqrt(fxF*fxF + fyF*fyF);
+                if (currentTotF > maxTotF) {
+                    const scale = maxTotF / currentTotF;
+                    fxF *= scale;
+                    fyF *= scale;
+                }
+
+                const currentTotR = Math.sqrt(fxR*fxR + fyR*fyR);
+                if (currentTotR > maxTotR) {
+                    const scale = maxTotR / currentTotR;
+                    fxR *= scale;
+                    fyR *= scale;
+                }
+
+                const F_f_lx = fxF * Math.cos(this.steerAngle) - fyF * Math.sin(this.steerAngle);
+                const F_f_ly = fxF * Math.sin(this.steerAngle) + fyF * Math.cos(this.steerAngle);
+                const F_r_lx = fxR;
+                const F_r_ly = fyR;
+
+                let F_lx = F_f_lx + F_r_lx; 
+                let F_ly = F_f_ly + F_r_ly; 
+
+                let dragLx = 0;
+                let dragLy = 0;
+                
+                let Cd_Front = 0.35; 
+                let Cd_Side = 1.50; 
+                if (this.mass > 3000) { 
+                    Cd_Front = 0.8;
+                    Cd_Side = 2.5;
+                }
+                const C_Roll = 30;
+
+                if (Math.abs(vLong) > 0.1) {
+                    dragLx = -Cd_Front * vLong * Math.abs(vLong);
+                    dragLx -= C_Roll * vLong;
+                }
+                
+                if (Math.abs(vLat) > 0.1) {
+                    dragLy = -Cd_Side * vLat * Math.abs(vLat);
+                    dragLy -= C_Roll * vLat;
+                }
+
+                F_lx += dragLx;
+                F_ly += dragLy;
+
+                let torque = (F_f_ly * this.cgToFront) - (F_r_ly * this.cgToRear);
+
+                if (this.trailer) {
+                    const hOffset = this.hitchOffset;
+                    const hX = this.x - Math.cos(this.angle) * hOffset;
+                    const hY = this.y - Math.sin(this.angle) * hOffset;
+                    
+                    const vLx_h = vLong;
+                    const vLy_h = vLat - this.angularVel * hOffset;
+                    
+                    const vHx = vLx_h * Math.cos(this.angle) - vLy_h * Math.sin(this.angle);
+                    const vHy = vLx_h * Math.sin(this.angle) + vLy_h * Math.cos(this.angle);
+
+                    // Pass truck angle for constraint
+                    const reaction = this.trailer.update(hX, hY, vHx, vHy, dt, this.roadFriction, this.angle);
+
+                    const rFx_local = reaction.fx * Math.cos(this.angle) + reaction.fy * Math.sin(this.angle);
+                    const rFy_local = -reaction.fx * Math.sin(this.angle) + reaction.fy * Math.cos(this.angle);
+
+                    F_lx += rFx_local;
+                    F_ly += rFy_local;
+
+                    torque += rFy_local * (-hOffset);
+                }
+
+                const Accel_lx = F_lx / this.mass;
+                const Accel_ly = F_ly / this.mass;
+
+                const ax = Accel_lx * Math.cos(this.angle) - Accel_ly * Math.sin(this.angle);
+                const ay = Accel_lx * Math.sin(this.angle) + Accel_ly * Math.cos(this.angle);
+
+                const angularAccel = torque / this.inertia;
+
+                this.vx += ax * dt;
+                this.vy += ay * dt;
+                
+                const hardLimitKmH = this.maxSpeed * 1.5;
+                const currentV = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                if (currentV > (hardLimitKmH / 3.6)) {
+                    const scale = (hardLimitKmH / 3.6) / currentV;
+                    this.vx *= scale;
+                    this.vy *= scale;
+                }
+                
+                this.angularVel += angularAccel * dt;
+                this.angularVel *= 0.98;
+
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                this.angle += this.angularVel * dt;
+
+                this.speed = currentSpeedKmH;
+                this.latG = Accel_ly / 9.81;
+
+                const slipThreshold = 0.15;
+                if (Math.abs(alphaR) > slipThreshold || Math.abs(alphaF) > slipThreshold || this.eBrake) {
+                    if (this.speed > 5) {
+                        this.skidMarks.push({
+                            x: this.x, y: this.y, 
+                            angle: this.angle, 
+                            age: 100,
+                            intensity: Math.min(1, (Math.abs(alphaR) + Math.abs(alphaF)))
+                        });
+                    }
+                }
+            }
+
+            draw(ctx, offsetX, offsetY) {
+                if (this.trailer) {
+                    const hX = this.x - Math.cos(this.angle) * this.hitchOffset;
+                    const hY = this.y - Math.sin(this.angle) * this.hitchOffset;
+                    this.trailer.draw(ctx, hX, hY, offsetX, offsetY);
+                }
+
+                ctx.save();
+                ctx.translate(this.x * METER_TO_PIXEL - offsetX, this.y * METER_TO_PIXEL - offsetY);
+                ctx.rotate(this.angle);
+
+                const rollShiftY = -this.latG * this.suspensionStiffness * 3; 
+                const pitchShiftX = -this.longG * this.suspensionStiffness * 3; 
+
+                const width = this.trackWidth;
+
+                ctx.save();
+                ctx.translate(pitchShiftX, rollShiftY);
+
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(-this.cgToRear * METER_TO_PIXEL - 5 + pitchShiftX*0.5, -width/2 * METER_TO_PIXEL - 5 + rollShiftY*0.5, this.wheelBase * METER_TO_PIXEL + 10, width * METER_TO_PIXEL + 10);
+
+                let bodyColor = '#444';
+                if (this.mass < 1000) bodyColor = '#e74c3c'; 
+                else if (this.mass > 3000) bodyColor = '#f1c40f'; 
+                else if (this.driveType === 'AWD') bodyColor = '#2ecc71'; 
+                
+                ctx.fillStyle = bodyColor;
+                ctx.fillRect(-this.cgToRear * METER_TO_PIXEL, -width/2 * METER_TO_PIXEL, this.wheelBase * METER_TO_PIXEL, width * METER_TO_PIXEL);
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(0, -width/2 * METER_TO_PIXEL, this.cgToFront * METER_TO_PIXEL, width * METER_TO_PIXEL);
+                
+                ctx.fillStyle = '#4facfe';
+                ctx.fillRect(-0.2 * METER_TO_PIXEL, -width/2.2 * METER_TO_PIXEL, 0.4 * METER_TO_PIXEL, width/1.1 * METER_TO_PIXEL);
+
+                if (this.brake > 0 || this.eBrake > 0) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.shadowColor = '#ff0000';
+                    ctx.shadowBlur = 15;
+                    ctx.fillRect(-this.cgToRear * METER_TO_PIXEL - 2, -width/2 * METER_TO_PIXEL + 2, 4, width/4 * METER_TO_PIXEL);
+                    ctx.fillRect(-this.cgToRear * METER_TO_PIXEL - 2, width/2 * METER_TO_PIXEL - width/4 * METER_TO_PIXEL - 2, 4, width/4 * METER_TO_PIXEL);
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.restore(); 
+
+                ctx.beginPath();
+                ctx.arc(0, 0, 3, 0, PI*2);
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+
+                this.drawWheel(ctx, this.cgToFront, -width/2, this.steerAngle, this.slipAngleFront, true);
+                this.drawWheel(ctx, this.cgToFront, width/2, this.steerAngle, this.slipAngleFront, true);
+                this.drawWheel(ctx, -this.cgToRear, -width/2, 0, this.slipAngleRear, false);
+                this.drawWheel(ctx, -this.cgToRear, width/2, 0, this.slipAngleRear, false);
+
+                ctx.restore();
+            }
+
+            drawWheel(ctx, xM, yM, steer, slip, isFront) {
+                const x = xM * METER_TO_PIXEL;
+                const y = yM * METER_TO_PIXEL;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                
+                const load = isFront ? this.weightFront : this.weightRear;
+                const baseLoad = (this.mass * 9.81) / 4;
+                const loadRatio = load / baseLoad;
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, 8 + loadRatio * 4, 0, PI*2);
+                ctx.fillStyle = `rgba(0, 255, 255, ${Math.min(0.5, loadRatio * 0.2)})`;
+                ctx.fill();
+
+                ctx.rotate(steer);
+
+                const slipDeg = Math.abs(slip * 180 / PI);
+                let tireColor = '#00ff00';
+                if (slipDeg > 3) tireColor = 'yellow';
+                if (slipDeg > 6) tireColor = 'red';
+                
+                if (!isFront && this.eBrake) tireColor = 'red';
+
+                ctx.fillStyle = tireColor;
+                const wSize = this.mass > 3000 ? 14 : 10;
+                const wLen = this.mass > 3000 ? 28 : 20;
+                ctx.fillRect(-wLen/2, -wSize/2, wLen, wSize);
+                
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(wLen/2 + 5, 0);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        const car = new Car();
+
+        function applyPreset(type) {
+            car.loadPreset(type);
+        }
+        window.applyPreset = applyPreset;
+
+        function toggleTrailer() {
+            if (car.trailer) {
+                car.removeTrailer();
+            } else {
+                car.addTrailer();
+            }
+            car.updateUIValues();
+        }
+        window.toggleTrailer = toggleTrailer;
+
+        function updateTrailerLoad(val) {
+            if (car.trailer) {
+                car.trailer.setCargo(val);
+                car.updateUIValues();
+                document.getElementById('trailer-load-status').innerText = `화물 적재 (${val} kg)`;
+            }
+        }
+        window.updateTrailerLoad = updateTrailerLoad;
+
+        function toggleAssist(type) {
+            if(type === 'ABS') {
+                car.absEnabled = !car.absEnabled;
+            }
+            if(type === 'TCS') {
+                car.tcsEnabled = !car.tcsEnabled;
+            }
+            car.updateUIValues();
+        }
+        window.toggleAssist = toggleAssist;
+
+        function updateRoad(val) {
+            const friction = parseFloat(val);
+            car.roadFriction = friction;
+            car.updatePhysicsProperties();
+            
+            const statusEl = document.getElementById('road-status');
+            if(friction < 0.8) {
+                statusEl.innerText = `빙판/젖은 노면 (${friction})`;
+                statusEl.style.color = "#81ecff";
+            } else if (friction < 1.3) {
+                statusEl.innerText = `일반 아스팔트 (${friction})`;
+                statusEl.style.color = "#aaa";
+            } else {
+                statusEl.innerText = `콘크리트 (${friction})`;
+                statusEl.style.color = "#ffb142";
+            }
+        }
+        window.updateRoad = updateRoad;
+
+        function updateTire(val) {
+            const grip = parseFloat(val);
+            car.tireFriction = grip;
+            car.updatePhysicsProperties();
+
+            const statusEl = document.getElementById('tire-status');
+            if(grip < 0.9) {
+                statusEl.innerText = `이코노미 타이어 (${grip})`;
+                statusEl.style.color = "#aaa";
+            } else if (grip < 1.2) {
+                statusEl.innerText = `스포츠 타이어 (${grip})`;
+                statusEl.style.color = "#81ecff";
+            } else {
+                statusEl.innerText = `세미 슬릭/레이싱 (${grip})`;
+                statusEl.style.color = "#ff4757";
+            }
+        }
+        window.updateTire = updateTire;
+
+        // Initialize
+        car.loadPreset('sedan');
+
+        // Main Loop
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('keydown', e => {
+            if(e.key === 'w' || e.key === 'ArrowUp') keys.w = true;
+            if(e.key === 'a' || e.key === 'ArrowLeft') keys.a = true;
+            if(e.key === 's' || e.key === 'ArrowDown') keys.s = true;
+            if(e.key === 'd' || e.key === 'ArrowRight') keys.d = true;
+            if(e.key === ' ') keys.space = true;
+        });
+
+        window.addEventListener('keyup', e => {
+            if(e.key === 'w' || e.key === 'ArrowUp') keys.w = false;
+            if(e.key === 'a' || e.key === 'ArrowLeft') keys.a = false;
+            if(e.key === 's' || e.key === 'ArrowDown') keys.s = false;
+            if(e.key === 'd' || e.key === 'ArrowRight') keys.d = false;
+            if(e.key === ' ') keys.space = false;
+        });
+
+        function drawBackground(ctx, width, height, friction) {
+            let roadColor, gridColor;
+            
+            if (friction < 0.8) {
+                roadColor = '#1a2530';
+                gridColor = 'rgba(100, 149, 237, 0.3)';
+            } else if (friction > 1.3) {
+                roadColor = '#3e3e3e';
+                gridColor = '#555';
+            } else {
+                roadColor = '#1a1a1a';
+                gridColor = '#333';
+            }
+            
+            ctx.fillStyle = roadColor;
+            ctx.fillRect(0, 0, width, height);
+            
+            return gridColor;
+        }
+
+        function drawGrid(offsetX, offsetY, gridColor) {
+            const gridSize = 100;
+            const startX = Math.floor(offsetX / gridSize) * gridSize;
+            const startY = Math.floor(offsetY / gridSize) * gridSize;
+            
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            for (let x = startX - gridSize; x < startX + width + gridSize; x += gridSize) {
+                ctx.moveTo(x - offsetX, 0);
+                ctx.lineTo(x - offsetX, height);
+            }
+            for (let y = startY - gridSize; y < startY + height + gridSize; y += gridSize) {
+                ctx.moveTo(0, y - offsetY);
+                ctx.lineTo(width, y - offsetY);
+            }
+            ctx.stroke();
+
+            if (car.roadFriction > 1.3) {
+                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                 for (let x = startX; x < startX + width; x += 200) {
+                     for (let y = startY; y < startY + height; y += 200) {
+                        ctx.fillRect(x - offsetX + 50, y - offsetY + 50, 10, 10);
+                     }
+                 }
+            }
+        }
+
+        function drawSkidmarks(offsetX, offsetY) {
+            for (let i = car.skidMarks.length - 1; i >= 0; i--) {
+                const mark = car.skidMarks[i];
+                mark.age -= 0.5;
+                if (mark.age <= 0) {
+                    car.skidMarks.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.save();
+                ctx.translate(mark.x * METER_TO_PIXEL - offsetX, mark.y * METER_TO_PIXEL - offsetY);
+                ctx.rotate(mark.angle);
+                
+                const opacityMult = car.roadFriction < 0.8 ? 0.5 : 1.0;
+                
+                ctx.fillStyle = `rgba(20, 20, 20, ${(mark.age / 100) * opacityMult})`;
+                const hw = car.trackWidth/2 * METER_TO_PIXEL;
+                ctx.fillRect(-2, -hw - 5, 4, 10);
+                ctx.fillRect(-2, hw - 5, 4, 10);
+                
+                ctx.restore();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('speed-display').innerText = Math.abs(car.speed).toFixed(0) + " km/h";
+            document.getElementById('slip-display').innerText = (car.slipAngleRear * 180 / PI).toFixed(1) + "°";
+            document.getElementById('lat-g-display').innerText = car.latG.toFixed(2) + " G";
+
+            const accelG = (keys.w ? 0.5 : (keys.s ? -0.8 : 0));
+            const latG = car.latG;
+            
+            const dot = document.getElementById('g-dot');
+            const maxPx = 35; 
+            let px = latG * 25;
+            let py = -accelG * 25;
+            
+            const dist = Math.sqrt(px*px + py*py);
+            if(dist > maxPx) {
+                px = (px/dist) * maxPx;
+                py = (py/dist) * maxPx;
+            }
+            
+            dot.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
+        }
+
+        let lastTime = 0;
+        function loop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+            lastTime = timestamp;
+
+            car.update(dt);
+            updateUI();
+
+            const offsetX = car.x * METER_TO_PIXEL - width / 2;
+            const offsetY = car.y * METER_TO_PIXEL - height / 2;
+
+            ctx.clearRect(0, 0, width, height);
+            
+            const gridColor = drawBackground(ctx, width, height, car.roadFriction);
+            
+            drawGrid(offsetX, offsetY, gridColor);
+            drawSkidmarks(offsetX, offsetY);
+            car.draw(ctx, offsetX, offsetY);
+
+            requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
