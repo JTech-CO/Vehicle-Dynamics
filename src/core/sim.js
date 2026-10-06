@@ -52,7 +52,7 @@
     }
   }
   for (const w of VD.model.WHEELS) {
-    CHANNELS.push({ key: `state_${w}`, unit: '–', group: 'state', wheel: w, hidden: true,
+    CHANNELS.push({ key: `state_${w}`, unit: '-', group: 'state', wheel: w, hidden: true,
       label: { ko: `타이어 상태 (${WHEEL_LABEL[w].ko})`, en: `Tire state (${WHEEL_LABEL[w].en})` } });
   }
   const CHANNEL_BY_KEY = Object.fromEntries(CHANNELS.map((c) => [c.key, c]));

@@ -293,7 +293,7 @@
       P('v', 'km/h', 80, 10, 250, 1, '시험 속도', 'Test speed'),
       P('swa', 'deg', 20, 1, 600, 1, '조향휠각 진폭', 'Steering-wheel amplitude'),
       P('f', 'Hz', 0.5, 0.05, 4, 0.05, '주파수', 'Frequency'),
-      P('cycles', '–', 4, 1, 20, 1, '주기 수', 'Cycles'),
+      P('cycles', '-', 4, 1, 20, 1, '주기 수', 'Cycles'),
       P('t0', 's', 0.5, 0, 5, 0.1, '조향 시작 시각', 'Steer start time'),
       E('speedMode', 'throttle', OPT_SPEED, '종방향 조건', 'Longitudinal mode'),
     ],
@@ -474,8 +474,8 @@
       const regB = cut(0.05, Math.min(0.3, 0.6 * pk.v), bA);
       return [
         m('A', 'A (0.3 g 조향휠각)', 'A (SWA at 0.3 g)', A, 'deg', 2,
-          { note: { ko: '0.1–0.375 g 선형회귀', en: 'linear regression 0.1–0.375 g' } }),
-        m('r2', 'A 회귀 결정계수 R²', 'A regression R²', regA.r2, '–', 4),
+          { note: { ko: '0.1~0.375 g 선형회귀', en: 'linear regression, 0.1 to 0.375 g' } }),
+        m('r2', 'A 회귀 결정계수 R²', 'A regression R²', regA.r2, '', 4),
         m('aymax', '최대 횡가속도', 'Max lateral acceleration', pk.v, 'g', 3),
         m('swaAtMax', '최대 횡가속도 시 조향휠각', 'SWA at max lateral accel.', X.at(t, swA, pk.t), 'deg', 1),
         m('Kus', '언더스티어 구배', 'Understeer gradient', K, 'deg/g', 2,
@@ -565,8 +565,8 @@
       const ended = res.stopped;
       return [
         m('Kus', '언더스티어 구배', 'Understeer gradient', regK.b, 'deg/g', 2,
-          { note: { ko: `정반경법, ay 0.1–${hi.toFixed(2)} g`, en: `constant-radius method, ay 0.1–${hi.toFixed(2)} g` } }),
-        m('r2', '회귀 결정계수 R²', 'Regression R²', regK.r2, '–', 4),
+          { note: { ko: `정반경법, ay 0.1~${hi.toFixed(2)} g`, en: `constant-radius method, ay 0.1 to ${hi.toFixed(2)} g` } }),
+        m('r2', '회귀 결정계수 R²', 'Regression R²', regK.r2, '', 4),
         m('bgrad', '슬립각 구배', 'Sideslip gradient', regB.b, 'deg/g', 2),
         m('aymax', '지속 최대 횡가속도 (1 s 평균)', 'Max sustained lateral accel. (1 s avg)', best, 'g', 3),
         m('vmax', '한계 속도', 'Limit speed', X.at(t, speed, bestT), 'km/h', 1),
@@ -652,14 +652,14 @@
 
   // ---- Slalom ---------------------------------------------------------------
   def({
-    id: 'slalom', group: 'closed', standard: '—',
+    id: 'slalom', group: 'closed', standard: '-',
     name: { ko: '슬라럼', en: 'Slalom' },
     desc: { ko: '등간격 콘 사이를 지그재그로 통과. 경로 추종 운전자 모델로 콘 접촉 여부 판정.',
       en: 'Weave through equally spaced cones with a path-following driver; counts cone contacts.' },
     params: [
       P('v', 'km/h', 50, 10, 160, 1, '시험 속도', 'Test speed'),
       P('d', 'm', 18, 8, 40, 0.5, '콘 간격', 'Cone spacing'),
-      P('n', '–', 7, 3, 15, 1, '콘 개수', 'Number of cones'),
+      P('n', '-', 7, 3, 15, 1, '콘 개수', 'Number of cones'),
       P('A', 'm', 1.3, 0.5, 4, 0.05, '경로 진폭', 'Path amplitude'),
       E('dir', 'left', [
         { value: 'left', label: { ko: '첫 콘 좌측 통과', en: 'Pass first cone on the left' } },
@@ -709,7 +709,7 @@
       return [
         m('verdict', '판정', 'Verdict', null, '', 0, { verdict: hit.size === 0 && Number.isFinite(tOut) }),
         m('hits', '콘 접촉', 'Cones hit', hit.size, '', 0, { pass: hit.size === 0 }),
-        m('time', '통과 시간 (첫–마지막 콘)', 'Time first→last cone', tOut - tIn, 's', 2),
+        m('time', '통과 시간 (첫~마지막 콘)', 'Time first→last cone', tOut - tIn, 's', 2),
         m('aymax', '최대 횡가속도', 'Max lateral accel.', X.maxAbs(t, ay), 'm/s²', 2),
         m('rmax', '최대 요 레이트', 'Max yaw rate', X.maxAbs(t, r), 'deg/s', 1),
         m('swamax', '최대 조향휠각', 'Max steering-wheel angle', X.maxAbs(t, swa), 'deg', 1),
@@ -732,8 +732,8 @@
       P('tRise', 's', 0.2, 0, 1, 0.05, '페달 상승 시간', 'Pedal rise time'),
       E('steer', 'fixed', OPT_STEER, '조향', 'Steering'),
       E('muMode', 'uniform', OPT_MU, '노면', 'Surface'),
-      P('muL', '–', 0.2, 0.05, 1.2, 0.05, '좌측 노면 μ', 'Left-side μ', { when: { muMode: 'split' } }),
-      P('muR', '–', 1.0, 0.05, 1.2, 0.05, '우측 노면 μ', 'Right-side μ', { when: { muMode: 'split' } }),
+      P('muL', '-', 0.2, 0.05, 1.2, 0.05, '좌측 노면 μ', 'Left-side μ', { when: { muMode: 'split' } }),
+      P('muR', '-', 1.0, 0.05, 1.2, 0.05, '우측 노면 μ', 'Right-side μ', { when: { muMode: 'split' } }),
     ],
     plots: [{ y: ['speed'] }, { y: ['ax'] }, { y: ['psi'] }, { y: ['Fz'], group: true }, { y: ['util'], group: true }, { xy: true, stretch: true }],
     build(ctx) {
@@ -786,16 +786,16 @@
 
   // ---- Full-throttle acceleration ------------------------------------------
   def({
-    id: 'accel', group: 'long', standard: '—',
+    id: 'accel', group: 'long', standard: '-',
     name: { ko: '발진 가속', en: 'Full-throttle acceleration' },
-    desc: { ko: '정지 상태에서 가속 페달 100%. 0–100 km/h 시간, 견인 한계, μ-split 거동.',
-      en: 'Full throttle from standstill. 0–100 km/h time, traction limit, μ-split behaviour.' },
+    desc: { ko: '정지 상태에서 가속 페달 100%. 0~100 km/h 시간, 견인 한계, μ-split 거동.',
+      en: 'Full throttle from standstill. 0-100 km/h time, traction limit, μ-split behaviour.' },
     params: [
       P('vEnd', 'km/h', 100, 20, 350, 1, '목표 속도', 'Target speed'),
       E('steer', 'driver', OPT_STEER, '조향', 'Steering'),
       E('muMode', 'uniform', OPT_MU, '노면', 'Surface'),
-      P('muL', '–', 0.2, 0.05, 1.2, 0.05, '좌측 노면 μ', 'Left-side μ', { when: { muMode: 'split' } }),
-      P('muR', '–', 1.0, 0.05, 1.2, 0.05, '우측 노면 μ', 'Right-side μ', { when: { muMode: 'split' } }),
+      P('muL', '-', 0.2, 0.05, 1.2, 0.05, '좌측 노면 μ', 'Left-side μ', { when: { muMode: 'split' } }),
+      P('muR', '-', 1.0, 0.05, 1.2, 0.05, '우측 노면 μ', 'Right-side μ', { when: { muMode: 'split' } }),
     ],
     plots: [{ y: ['speed'] }, { y: ['ax'] }, { y: ['Fx'], group: true }, { y: ['util'], group: true }, { y: ['throttle'] }],
     build(ctx) {
@@ -832,10 +832,10 @@
       let spin = false;
       for (const w of VD.model.WHEELS) { const st = res.ch['state_' + w]; for (let i = 0; i < t.length; i++) if (st[i] === VD.tire.STATE.SPIN) { spin = true; break; } }
       return [
-        m('t60', '0–60 km/h', '0–60 km/h', tt(60), 's', 2),
-        m('t100', '0–100 km/h', '0–100 km/h', tt(100), 's', 2),
-        m('t80120', '80–120 km/h', '80–120 km/h', t120 - t80, 's', 2),
-        m('tEnd', '0–목표속도', '0–target speed', tE, 's', 2),
+        m('t60', '0~60 km/h', '0-60 km/h', tt(60), 's', 2),
+        m('t100', '0~100 km/h', '0-100 km/h', tt(100), 's', 2),
+        m('t80120', '80~120 km/h', '80-120 km/h', t120 - t80, 's', 2),
+        m('tEnd', '0~목표속도', '0 to target speed', tE, 's', 2),
         m('dEnd', '목표속도 도달 거리', 'Distance to target speed', X.at(t, dist, tE + b.t0), 'm', 1),
         m('axmax', '최대 종가속도', 'Max longitudinal accel.', X.maxAbs(t, ax) / g, 'g', 3),
         m('psimax', '최대 요 각 편차', 'Max heading deviation', X.maxAbs(t, psi), 'deg', 2),
@@ -871,9 +871,9 @@
   }
 
   def({
-    id: 'custom', group: 'open', standard: '—',
+    id: 'custom', group: 'open', standard: '-',
     name: { ko: '사용자 조향 입력', en: 'Custom steering input' },
-    desc: { ko: '시간–조향휠각 표(CSV)를 직접 입력. 실측 조향 데이터 재현에 사용.',
+    desc: { ko: '시간-조향휠각 표(CSV)를 직접 입력. 실측 조향 데이터 재현에 사용.',
       en: 'Time vs steering-wheel angle table (CSV). Use it to replay measured steering.' },
     params: [
       P('v', 'km/h', 80, 5, 250, 1, '시험 속도', 'Test speed'),
@@ -928,7 +928,7 @@
     ];
   }
   def({
-    id: 'drive', group: 'record', standard: '—', recordOnly: true,
+    id: 'drive', group: 'record', standard: '-', recordOnly: true,
     name: { ko: '실시간 주행 기록', en: 'Driving-simulator recording' },
     desc: { ko: '[실시간 주행]에서 기록한 데이터입니다. 여기서는 실행할 수 없으며, 주행 화면에서 기록 후 [해석으로 보내기]를 누르세요.',
       en: 'Data recorded in the [Driving simulator]. It cannot be run here: record a drive there and press [Send to analysis].' },

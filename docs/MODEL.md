@@ -84,14 +84,14 @@ ESC: $r_{ref} = \mathrm{clamp}(v\delta_f/(L + Kv^2), \pm 0.85\mu g/v)$, $\Delta 
 | Step steer | ISO 7401 | 80 km/h, 500 °/s, SWA calibrated to $a_{y,ss}$ = 4 m/s² | steady gains, response time (t₅₀→90 %), peak time, overshoot, TB |
 | Sinusoidal | ISO 7401 | continuous sine | gain/phase of $r, a_y, \beta$ vs linear model |
 | Sine with dwell | FMVSS 126 / GTR 8 | 80 km/h coast, 0.7 Hz, 500 ms dwell, ≤ 6.5A, ≤ 270° | YRR(1.00 s) ≤ 35 %, YRR(1.75 s) ≤ 20 %, displacement(1.07 s) ≥ 1.83 m |
-| SIS | NHTSA | 80 km/h, 13.5 °/s | A at 0.3 g (regression 0.1–0.375 g), $K$ |
+| SIS | NHTSA | 80 km/h, 13.5 °/s | A at 0.3 g (regression 0.1 to 0.375 g), $K$ |
 | Constant radius | ISO 4138 | R 40 m, speed ramp | handling diagram, $K$, β gradient, limit $a_y$ |
 | Double lane change | ISO 3888-1 | widths 1.1W+0.25 / 1.2W+0.25 / 1.3W+0.25 m, offset 3.5 m | boundary violations |
 | Obstacle avoidance | ISO 3888-2 | widths 1.1W+0.25 / W+1 / max(1.3W+0.25, 3) m, offset 1 m | boundary violations |
-| Slalom | — | 18 m cone pitch | cone contacts |
+| Slalom | - | 18 m cone pitch | cone contacts |
 | Braking | ECE R13-H | 100 km/h, optional μ-split | stopping distance, MFDD, yaw deviation |
-| Acceleration | — | full throttle | 0–100 km/h |
-| Custom | — | steering table | generic maxima |
+| Acceleration | - | full throttle | 0-100 km/h |
+| Custom | - | steering table | generic maxima |
 
 Assumptions: the ISO 3888 offset reference boundaries follow common practice (3888-1: between right-hand boundaries; 3888-2: lane 1 left to lane 3 right); FMVSS 126 GVWR is approximated by the test mass.
 

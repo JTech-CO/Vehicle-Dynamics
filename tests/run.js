@@ -155,7 +155,7 @@ test('Coast-down deceleration equals drag + rolling resistance', () => {
 test('ABS straight-line braking: MFDD ≈ η·μ·g', () => {
   const run = VD.maneuvers.execute('brake', sedan, { v: 100 }, { mu: 1.0 });
   const mfdd = metric(run, 'mfdd').value;
-  ok(mfdd > 0.88 * g && mfdd < 0.95 * g, `MFDD ${mfdd.toFixed(2)} m/s² outside 0.88–0.95 g`);
+  ok(mfdd > 0.88 * g && mfdd < 0.95 * g, `MFDD ${mfdd.toFixed(2)} m/s² outside 0.88-0.95 g`);
   ok(metric(run, 'lock').pass, 'no wheel lock with ABS');
 });
 

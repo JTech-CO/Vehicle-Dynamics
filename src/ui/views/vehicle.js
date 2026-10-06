@@ -110,7 +110,7 @@
     clear(presetSel);
     const og1 = h('optgroup'); bind(og1, 'label', { ko: '프리셋', en: 'Presets' });
     for (const pr of P.PRESETS) {
-      const o = h('option', { value: pr.id }); bind(o, 'text', { ko: `${pr.name.ko} — ${pr.desc.ko}`, en: `${pr.name.en} — ${pr.desc.en}` });
+      const o = h('option', { value: pr.id }); bind(o, 'text', { ko: `${pr.name.ko} (${pr.desc.ko})`, en: `${pr.name.en} (${pr.desc.en})` });
       og1.appendChild(o);
     }
     presetSel.appendChild(og1);
@@ -220,7 +220,7 @@
     tirePlot.setData({ series });
   }
 
-  /** k: {ko, en, sym?, sub?} — the symbol is rendered after the label with a real subscript. */
+  /** k: {ko, en, sym?, sub?}; the symbol is rendered after the label with a real subscript. */
   function row(k, v, unit, note) {
     return [h('div', { class: 'k' }, tx(k), k.sym ? [' ', VD.forms.symNode(k.sym, k.sub)] : null, note ? h('span', { class: 'note' }, tx(note)) : null),
       h('div', { class: 'val' }, v, unit ? h('span', { class: 'u' }, unit) : null)];
@@ -276,7 +276,7 @@
       ]),
       sec({ ko: '한계 성능 (추정)', en: 'Limit performance (estimates)' }, [
         ...row({ ko: '정적 안정 계수', en: 'Static stability factor', sym: 'SSF' }, fmt(d.ssf, 2), 'g', { ko: 'w/(2h), 전복 한계 지표', en: 'w/(2h), rollover index' }),
-        ...row({ ko: '최고 속도', en: 'Top speed' }, fmt(d.vTop * 3.6, 0), 'km/h', d.vTop < d.vTopPower - 0.1 ? { ko: '제한기에 의함', en: 'governor-limited' } : { ko: '출력–저항 균형', en: 'power–drag balance' }),
+        ...row({ ko: '최고 속도', en: 'Top speed' }, fmt(d.vTop * 3.6, 0), 'km/h', d.vTop < d.vTopPower - 0.1 ? { ko: '제한기에 의함', en: 'governor-limited' } : { ko: '출력-저항 균형', en: 'power-drag balance' }),
         ...row({ ko: '출력 대 질량비', en: 'Power-to-mass ratio' }, fmt(d.powerToWeight, 1), 'W/kg'),
         ...row({ ko: '최대 감속도 (마찰·제동력 한계)', en: 'Max deceleration (friction/brake)' }, fmt(d.decelMax / g, 2), 'g'),
         ...row({ ko: '피크 슬립각 (전/후, MF)', en: 'Peak slip angle (F/R, MF)' }, `${fmt(pkF, 1)} / ${fmt(pkR, 1)}`, 'deg'),
@@ -321,7 +321,7 @@
     const num = (v) => (Number.isInteger(v) ? String(v) : Number(v.toPrecision(8)).toString());
     const put = (field, v, comment) => lines.push(`veh.${field.padEnd(14)} = ${num(v).padStart(10)};  % ${comment}`);
     lines.push(`% Vehicle parameters exported from Vehicle Dynamics Workbench ${VD.version}`);
-    lines.push(`% ${q(name)} — ${new Date().toISOString().slice(0, 10)}`);
+    lines.push(`% ${q(name)} (${new Date().toISOString().slice(0, 10)})`);
     lines.push('% Units are SI. Names in brackets refer to the MATLAB Vehicle Dynamics Blockset');
     lines.push('% "Vehicle Body 3DOF" block parameters where an equivalent exists.');
     lines.push('');

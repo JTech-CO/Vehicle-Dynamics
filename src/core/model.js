@@ -3,7 +3,7 @@
  * Dual-track and single-track variants, after MathWorks "Vehicle Body 3DOF".
  * MIT License.
  *
- * Frames: ISO 8855 — x forward, y left, z up; yaw rate r and steer angle δ
+ * Frames (ISO 8855): x forward, y left, z up; yaw rate r and steer angle δ
  * positive counter-clockwise (left turn). Earth frame X, Y with heading ψ.
  *
  * State vector s (12):

@@ -212,9 +212,9 @@ function figStep() {
     series.push({ x: Array.from(c.t, (t) => t - 0.5), y: Array.from(c.r, (r) => r / rss), color: `s${k + 1}`,
       label: `${name(id)} · T90 ${metric(run, 'tr90').value.toFixed(3)} s · overshoot ${metric(run, 'os').value.toFixed(1)} %` });
   });
-  return { id: 'step', title: 'Step steer — normalised yaw-rate response (ISO 7401)',
+  return { id: 'step', title: 'Step steer: normalised yaw-rate response (ISO 7401)',
     subtitle: '80 km/h, steering amplitude calibrated to a steady-state lateral acceleration of 4 m/s², nonlinear dual-track model',
-    x: { label: 'time after steer onset', unit: 's', min: -0.2, max: 2.5 }, y: { label: 'r / r_ss', unit: '–', min: 0, max: 1.3 },
+    x: { label: 'time after steer onset', unit: 's', min: -0.2, max: 2.5 }, y: { label: 'r / r_ss', unit: '-', min: 0, max: 1.3 },
     series, hlines: [{ y: 1, label: 'steady state' }] };
 }
 
@@ -234,7 +234,7 @@ function figHandling() {
     }
     series.push({ x: xs, y: ys, color: `s${k + 1}`, label: `${name(id)} · K = ${metric(run, 'Kus').value.toFixed(2)} deg/g` });
   });
-  return { id: 'handling', title: 'Handling diagram — constant radius 40 m (ISO 4138)',
+  return { id: 'handling', title: 'Handling diagram: constant radius 40 m (ISO 4138)',
     subtitle: 'Road-wheel angle above the Ackermann angle vs lateral acceleration; slope = understeer gradient K',
     x: { label: 'lateral acceleration', unit: 'g', min: 0 }, y: { label: 'δ − L/R', unit: 'deg' },
     series, hlines: [{ y: 0, label: 'neutral steer' }] };
@@ -251,8 +251,8 @@ function figGain() {
     if (id === 'drift') vl.push({ x: us.vcrit * 3.6, label: `v_crit ${Math.round(us.vcrit * 3.6)} km/h` });
   });
   return { id: 'gain', title: 'Steady-state yaw-rate gain vs speed (linear single-track)',
-    subtitle: 'Normalised to neutral steer: (r/δ)·L/v = 1/(1 + K v²/L) — understeer falls, oversteer diverges at v_crit',
-    x: { label: 'speed', unit: 'km/h', min: 0, max: 260 }, y: { label: '(r/δ)·L/v', unit: '–', min: 0, max: 3 },
+    subtitle: 'Normalised to neutral steer: (r/δ)·L/v = 1/(1 + K v²/L); understeer falls, oversteer diverges at v_crit',
+    x: { label: 'speed', unit: 'km/h', min: 0, max: 260 }, y: { label: '(r/δ)·L/v', unit: '-', min: 0, max: 3 },
     series, hlines: [{ y: 1, label: 'neutral steer' }], vlines: vl };
 }
 
@@ -262,12 +262,12 @@ function figSwd() {
   const off = MAN.execute('swd', p, { scalar: 5 }, { esc: 'off', linearRef: false });
   const v = (run) => (metric(run, 'verdict').verdict ? 'PASS' : 'FAIL');
   const yrr = (run) => { const m = metric(run, 'yrr1').value; return m === null ? 'spin' : `YRR(1.0 s) ${m.toFixed(0)} %`; };
-  return { id: 'swd', title: 'Sine with dwell — ESC on vs off (FMVSS 126)',
+  return { id: 'swd', title: 'Sine with dwell: ESC on vs off (FMVSS 126)',
     subtitle: `Mid-size sedan, 80 km/h coast, 0.7 Hz sine with 0.5 s dwell, 5 × A = ${metric(on, 'amp').value.toFixed(0)}° (BOS/COS: begin/completion of steer)`,
     x: { label: 'time', unit: 's', min: 0, max: on.res.ch.t[on.res.n - 1] }, y: { label: 'yaw rate', unit: 'deg/s', min: -60, max: 40 },
     series: [
-      { x: on.res.ch.t, y: on.res.ch.r, color: 's1', label: `ESC on — ${v(on)} · ${yrr(on)}` },
-      { x: off.res.ch.t, y: off.res.ch.r, color: 's2', label: `ESC off — ${v(off)} · ${yrr(off)}` },
+      { x: on.res.ch.t, y: on.res.ch.r, color: 's1', label: `ESC on: ${v(on)} · ${yrr(on)}` },
+      { x: off.res.ch.t, y: off.res.ch.r, color: 's2', label: `ESC off: ${v(off)} · ${yrr(off)}` },
     ],
     vlines: (on.annot.tMarks || []).map((m) => ({ x: m.t, label: m.label })) };
 }
@@ -285,8 +285,8 @@ function figDlc() {
     }
     return s;
   };
-  const lbl = (run, v) => `${v} km/h — ${metric(run, 'verdict').verdict ? 'PASS' : 'FAIL'} · max a_y ${metric(run, 'aymax').value.toFixed(1)} m/s²`;
-  return { id: 'dlc', title: 'Double lane change — CG path through the cone gates (ISO 3888-1)',
+  const lbl = (run, v) => `${v} km/h: ${metric(run, 'verdict').verdict ? 'PASS' : 'FAIL'} · max a_y ${metric(run, 'aymax').value.toFixed(1)} m/s²`;
+  return { id: 'dlc', title: 'Double lane change: CG path through the cone gates (ISO 3888-1)',
     subtitle: 'Mid-size sedan with the built-in path-following driver; lateral axis exaggerated',
     x: { label: 'X', unit: 'm', min: -15, max: 140 },
     y: { label: 'Y', unit: 'm', min: Math.min(...lanes.map((l) => l.yR)) - 0.5, max: Math.max(...lanes.map((l) => l.yL)) + 0.5 },
@@ -321,7 +321,7 @@ function figVerify() {
   let dmax = 0; const n = Math.min(c.r.length, rl.length);
   for (let i = 0; i < n; i++) dmax = Math.max(dmax, Math.abs(c.r[i] - rl[i]));
   const rss = metric(run, 'rss').value;
-  return { id: 'verify', title: 'Verification — nonlinear solver vs closed-form linear model',
+  return { id: 'verify', title: 'Verification: nonlinear solver vs closed-form linear model',
     subtitle: `Single track, linear tires, fixed 100 km/h, 5° steering step: max deviation ${(100 * dmax / rss).toFixed(2)} % of r_ss`,
     x: { label: 'time', unit: 's', min: 0, max: 3 }, y: { label: 'yaw rate', unit: 'deg/s', min: 0 },
     series: [
@@ -371,13 +371,13 @@ function benchmark() {
     const brake = MAN.execute('brake', p, { v: 100 }, {});
     const fmvss = p.m <= 4536 ? MAN.execute('swd', p, {}, { linearRef: false }) : null;
     const acc = p.vMax > 101 ? MAN.execute('accel', p, { vEnd: 100 }, {}) : null;
-    const f = (v, dg) => (v === null || v === undefined || !Number.isFinite(v) ? '—' : fmtNum(v, dg));
+    const f = (v, dg) => (v === null || v === undefined || !Number.isFinite(v) ? '-' : fmtNum(v, dg));
     const verdict = (run) => (run ? (metric(run, 'verdict').verdict ? '✅' : '❌') : 'n/a');
     const speed = Number.isFinite(d.vch) ? `${Math.round(d.vch * 3.6)}` : `${Math.round(d.vcrit * 3.6)} (v<sub>crit</sub>)`;
     const lift = circ.warnings.some((w) => w.code === 'lift') ? '¹' : '';
     rows.push([pr.name.ko, f(p.m, 0), f(d.KusDegG, 2), speed, f(d.at100.fn, 2), f(d.at100.zeta, 2),
       f(metric(step, 'tr90').value, 3), f(metric(sis, 'A').value, 1), f(metric(circ, 'aymax').value, 2) + lift,
-      verdict(fmvss), verdict(dlc), f(metric(brake, 'sd').value, 1), acc ? f(metric(acc, 't100').value, 1) : '—']);
+      verdict(fmvss), verdict(dlc), f(metric(brake, 'sd').value, 1), acc ? f(metric(acc, 't100').value, 1) : '-']);
   }
   const head = ['프리셋', 'm [kg]', 'K [deg/g]', 'v<sub>ch</sub> [km/h]', 'f<sub>n</sub> [Hz]', 'ζ', 'T<sub>r90</sub> [s]', 'A [deg]', 'a<sub>y,max</sub> [g]', 'FMVSS 126', 'ISO 3888-1 @80', '100→0 [m]', '0→100 [s]'];
   const lines = [`| ${head.join(' | ')} |`, `| ${head.map((h, i) => (i === 0 ? '---' : '---:')).join(' | ')} |`];
@@ -424,7 +424,16 @@ function main() {
   // 3. README sections
   const readmePath = path.join(ROOT, 'README.md');
   let readme = fs.readFileSync(readmePath, 'utf8');
-  const badgeMd = badges.map(([file, l, v]) => `<img src="docs/badges/${file}.svg" alt="${esc(l)}: ${esc(v)}" height="20">`).join('\n');
+  // two centred rows: project status, then technology
+  const LINKS = { license: 'LICENSE', tests: 'docs/VALIDATION.md', dependencies: 'package.json', standards: 'docs/MODEL.md' };
+  const ROWS = [['license', 'version', 'tests', 'dependencies', 'build'], ['offline', 'javascript', 'i18n', 'standards']];
+  const byFile = Object.fromEntries(badges.map((b) => [b[0], b]));
+  const img = (file) => {
+    const [, l, v] = byFile[file];
+    const tag = `<img src="docs/badges/${file}.svg" alt="${esc(l)}: ${esc(v)}" height="20">`;
+    return LINKS[file] ? `<a href="${LINKS[file]}">${tag}</a>` : tag;
+  };
+  const badgeMd = ROWS.map((row) => `<p align="center">\n  ${row.map(img).join('\n  ')}\n</p>`).join('\n');
   readme = inject(readme, 'badges', badgeMd);
   readme = inject(readme, 'benchmark', benchmark());
   fs.writeFileSync(readmePath, readme);

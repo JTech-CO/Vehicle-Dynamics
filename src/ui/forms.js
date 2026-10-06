@@ -39,7 +39,7 @@
     const hint = f.hint ? h('div', { class: 'field-hint' }, tx(f.hint)) : null;
     const field = h('div', { class: 'field', 'data-key': f.key },
       h('label', { class: 'field-label', for: id }, tx(f.label), symNode(f.sym, f.sub)),
-      h('div', { class: 'input-wrap' }, input, f.unit && f.unit !== '–' ? h('span', { class: 'unit' }, f.unit) : null),
+      h('div', { class: 'input-wrap' }, input, f.unit && f.unit !== '-' ? h('span', { class: 'unit' }, f.unit) : null),
       hint, err);
     if (hint) input.setAttribute('aria-describedby', id + 'h'), hint.id = id + 'h';
     let last = value;

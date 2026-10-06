@@ -191,7 +191,7 @@
         nextRec += 0.01;
         if (t - recStart > 600) stopRecording();
       }
-      if (!Number.isFinite(s[3])) { reset(); toast({ ko: '수치 발산으로 초기화했습니다.', en: 'Numerical divergence — reset.' }, 'bad'); return; }
+      if (!Number.isFinite(s[3])) { reset(); toast({ ko: '수치 발산으로 초기화했습니다.', en: 'Numerical divergence; the vehicle was reset.' }, 'bad'); return; }
     }
     stepper.refresh(t, s, u);
     // very low speed with brakes held: park the vehicle (avoids creeping)
@@ -507,7 +507,7 @@
     tele.vals.ax.textContent = fmt(aux.ax / g, 2);
     tele.vals.r.textContent = fmt(s[5] * RAD, 1);
     tele.vals.beta.textContent = fmt(v > 1 ? Math.atan2(s[4], Math.abs(s[3])) * RAD : 0, 1);
-    tele.vals.R.textContent = Math.abs(s[5]) > 0.01 && v > 1 ? fmt(v / Math.abs(s[5]), 1) : '—';
+    tele.vals.R.textContent = Math.abs(s[5]) > 0.01 && v > 1 ? fmt(v / Math.abs(s[5]), 1) : '-';
     if (rec) tele.recInfo.textContent = `● ${fmt(t - recStart, 1)} s`;
     // HUD: course timing
     clear(hudEl);

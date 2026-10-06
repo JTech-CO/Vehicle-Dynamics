@@ -42,10 +42,10 @@
       hint: { ko: '지면 기준', en: 'Above ground' } }),
 
     F('a', 'geometry', { sym: 'a', unit: 'm', min: 0.3, max: 8, step: 0.01,
-      label: { ko: '무게중심–전축 거리', en: 'CG to front axle' },
+      label: { ko: '무게중심-전축 거리', en: 'CG to front axle' },
       hint: { ko: 'MATLAB 3DOF의 a (l_f)', en: 'MATLAB 3DOF parameter a (l_f)' } }),
     F('b', 'geometry', { sym: 'b', unit: 'm', min: 0.3, max: 8, step: 0.01,
-      label: { ko: '무게중심–후축 거리', en: 'CG to rear axle' },
+      label: { ko: '무게중심-후축 거리', en: 'CG to rear axle' },
       hint: { ko: 'MATLAB 3DOF의 b (l_r)', en: 'MATLAB 3DOF parameter b (l_r)' } }),
     F('wf', 'geometry', { sym: 'w', sub: 'f', unit: 'm', min: 0.5, max: 3.5, step: 0.01,
       label: { ko: '전륜 윤거', en: 'Front track width' } }),
@@ -54,23 +54,23 @@
 
     F('ohF', 'body', { sym: 'o', sub: 'f', unit: 'm', min: 0, max: 4, step: 0.01,
       label: { ko: '전방 오버행', en: 'Front overhang' },
-      hint: { ko: '전축–차체 앞끝. 콘 판정·도시에 사용', en: 'Front axle to bumper. Used for cone checks and drawing' } }),
+      hint: { ko: '전축에서 차체 앞끝까지. 콘 판정·도시에 사용', en: 'Front axle to bumper. Used for cone checks and drawing' } }),
     F('ohR', 'body', { sym: 'o', sub: 'r', unit: 'm', min: 0, max: 5, step: 0.01,
       label: { ko: '후방 오버행', en: 'Rear overhang' } }),
     F('bodyW', 'body', { sym: 'W', unit: 'm', min: 0.8, max: 3.0, step: 0.01,
       label: { ko: '차체 전폭', en: 'Overall width' },
       hint: { ko: 'ISO 3888 차로 폭 계산에 사용', en: 'Used for ISO 3888 lane widths' } }),
 
-    F('steerRatio', 'steering', { sym: 'i', sub: 's', unit: '–', min: 5, max: 40, step: 0.1,
+    F('steerRatio', 'steering', { sym: 'i', sub: 's', unit: '-', min: 5, max: 40, step: 0.1,
       label: { ko: '조향 기어비', en: 'Steering ratio' },
       hint: { ko: '조향휠각 / 전륜 조향각', en: 'Steering-wheel angle / road-wheel angle' } }),
     F('swaMax', 'steering', { sym: 'δ', sub: 'sw,max', unit: 'deg', min: 90, max: 1200, step: 5,
       label: { ko: '최대 조향휠각', en: 'Max steering-wheel angle' },
-      hint: { ko: '중립–락 각도', en: 'Centre to lock' } }),
+      hint: { ko: '중립 위치에서 락까지의 각도', en: 'Centre to lock' } }),
     F('ackermann', 'steering', { sym: 'A', sub: 'ck', unit: '%', min: 0, max: 100, step: 1,
       label: { ko: '애커먼 비율', en: 'Ackermann percentage' },
       hint: { ko: '0 = 평행 조향, 100 = 기하학적 애커먼', en: '0 = parallel steer, 100 = full geometric Ackermann' } }),
-    F('rearSteer', 'steering', { sym: 'k', sub: 'rs', unit: '–', min: -0.5, max: 0.5, step: 0.01,
+    F('rearSteer', 'steering', { sym: 'k', sub: 'rs', unit: '-', min: -0.5, max: 0.5, step: 0.01,
       label: { ko: '후륜 조향비', en: 'Rear-steer ratio' },
       hint: { ko: 'δr = k·δf. 음수 = 역위상', en: 'δr = k·δf. Negative = counter-phase' } }),
 
@@ -79,23 +79,23 @@
       hint: { ko: '정적 하중에서 좌우 합산, 컴플라이언스 포함 등가값', en: 'Both tires at static load; effective value incl. compliance' } }),
     F('Cr', 'tires', { sym: 'C', sub: 'αr', unit: 'N/rad', min: 5000, max: 2000000, step: 1000,
       label: { ko: '후축 코너링 강성', en: 'Rear axle cornering stiffness' } }),
-    F('muF', 'tires', { sym: 'μ', sub: 'f', unit: '–', min: 0.2, max: 2.5, step: 0.01,
+    F('muF', 'tires', { sym: 'μ', sub: 'f', unit: '-', min: 0.2, max: 2.5, step: 0.01,
       label: { ko: '전륜 최대 마찰계수', en: 'Front tire peak friction' },
       hint: { ko: '기준 노면(μ=1)에서의 값', en: 'On the reference surface (road μ = 1)' } }),
-    F('muR', 'tires', { sym: 'μ', sub: 'r', unit: '–', min: 0.2, max: 2.5, step: 0.01,
+    F('muR', 'tires', { sym: 'μ', sub: 'r', unit: '-', min: 0.2, max: 2.5, step: 0.01,
       label: { ko: '후륜 최대 마찰계수', en: 'Rear tire peak friction' } }),
-    F('mfC', 'tires', { sym: 'C', sub: 'y', unit: '–', min: 1.0, max: 2.0, step: 0.01, advanced: true,
+    F('mfC', 'tires', { sym: 'C', sub: 'y', unit: '-', min: 1.0, max: 2.0, step: 0.01, advanced: true,
       label: { ko: 'Magic Formula 형상계수', en: 'Magic Formula shape factor' } }),
-    F('mfE', 'tires', { sym: 'E', sub: 'y', unit: '–', min: -5, max: 0.9, step: 0.05, advanced: true,
+    F('mfE', 'tires', { sym: 'E', sub: 'y', unit: '-', min: -5, max: 0.9, step: 0.05, advanced: true,
       label: { ko: 'Magic Formula 곡률계수', en: 'Magic Formula curvature factor' },
       hint: { ko: '음수일수록 피크 슬립각이 작아짐', en: 'More negative → smaller peak slip angle' } }),
-    F('nC', 'tires', { sym: 'n', sub: 'C', unit: '–', min: 0, max: 1, step: 0.01, advanced: true,
+    F('nC', 'tires', { sym: 'n', sub: 'C', unit: '-', min: 0, max: 1, step: 0.01, advanced: true,
       label: { ko: '코너링 강성 하중 지수', en: 'Cornering-stiffness load exponent' },
       hint: { ko: 'Cα ∝ Fzⁿ. 1 = MATLAB 3DOF와 동일한 비례 모델', en: 'Cα ∝ Fzⁿ. 1 = proportional, as in MATLAB 3DOF' } }),
-    F('kMu', 'tires', { sym: 'k', sub: 'μ', unit: '–', min: 0, max: 0.5, step: 0.01, advanced: true,
+    F('kMu', 'tires', { sym: 'k', sub: 'μ', unit: '-', min: 0, max: 0.5, step: 0.01, advanced: true,
       label: { ko: '마찰계수 하중 민감도', en: 'Friction load sensitivity' },
       hint: { ko: 'μ ∝ (Fz/Fz0)^(−k)', en: 'μ ∝ (Fz/Fz0)^(−k)' } }),
-    F('slideRatio', 'tires', { sym: 'μ', sub: 's/p', unit: '–', min: 0.4, max: 1, step: 0.01, advanced: true,
+    F('slideRatio', 'tires', { sym: 'μ', sub: 's/p', unit: '-', min: 0.4, max: 1, step: 0.01, advanced: true,
       label: { ko: '미끄럼/최대 마찰비', en: 'Sliding-to-peak friction ratio' },
       hint: { ko: '잠김·휠스핀 상태의 마찰', en: 'Friction while locked or spinning' } }),
     F('sigma', 'tires', { sym: 'σ', unit: 'm', min: 0, max: 2, step: 0.01, advanced: true,
@@ -135,18 +135,18 @@
       label: { ko: '주차 브레이크 제동력', en: 'Handbrake force' },
       hint: { ko: '후륜에만 작용, ABS 미적용', en: 'Rear only, bypasses ABS' } }),
 
-    F('Cd', 'aero', { sym: 'C', sub: 'd', unit: '–', min: 0, max: 2, step: 0.01,
+    F('Cd', 'aero', { sym: 'C', sub: 'd', unit: '-', min: 0, max: 2, step: 0.01,
       label: { ko: '항력 계수', en: 'Drag coefficient' } }),
     F('Af', 'aero', { sym: 'A', sub: 'f', unit: 'm²', min: 0.3, max: 12, step: 0.01,
       label: { ko: '전면 투영 면적', en: 'Frontal area' } }),
-    F('Cl', 'aero', { sym: 'C', sub: 'l', unit: '–', min: -6, max: 1, step: 0.01,
+    F('Cl', 'aero', { sym: 'C', sub: 'l', unit: '-', min: -6, max: 1, step: 0.01,
       label: { ko: '양력 계수', en: 'Lift coefficient' },
       hint: { ko: '음수 = 다운포스', en: 'Negative = downforce' } }),
     F('aeroBalF', 'aero', { sym: 'ε', sub: 'f', unit: '%', min: 0, max: 100, step: 1,
       label: { ko: '전축 공력 배분', en: 'Front aero balance' } }),
     F('rho', 'aero', { sym: 'ρ', unit: 'kg/m³', min: 0.8, max: 1.4, step: 0.001, advanced: true,
       label: { ko: '공기 밀도', en: 'Air density' } }),
-    F('fr', 'aero', { sym: 'f', sub: 'r', unit: '–', min: 0, max: 0.05, step: 0.001,
+    F('fr', 'aero', { sym: 'f', sub: 'r', unit: '-', min: 0, max: 0.05, step: 0.001,
       label: { ko: '구름저항 계수', en: 'Rolling-resistance coefficient' } }),
 
     F('abs', 'assist', { type: 'bool', sym: '', unit: '', label: { ko: 'ABS', en: 'ABS' },
@@ -155,7 +155,7 @@
       hint: { ko: '구동륜 휠스핀 방지', en: 'Prevents drive-wheel spin' } }),
     F('esc', 'assist', { type: 'bool', sym: '', unit: '', label: { ko: 'ESC', en: 'ESC' },
       hint: { ko: '개별 제동으로 요 레이트 제어', en: 'Yaw-rate control by individual wheel braking' } }),
-    F('absEff', 'assist', { sym: 'η', sub: 'ABS', unit: '–', min: 0.5, max: 1, step: 0.01, advanced: true,
+    F('absEff', 'assist', { sym: 'η', sub: 'ABS', unit: '-', min: 0.5, max: 1, step: 0.01, advanced: true,
       label: { ko: 'ABS 마찰 활용률', en: 'ABS friction utilisation' } }),
     F('escGain', 'assist', { sym: 'K', sub: 'ESC', unit: '1/s', min: 0, max: 40, step: 0.5, advanced: true,
       label: { ko: 'ESC 요 모멘트 게인', en: 'ESC yaw-moment gain' } }),
@@ -166,7 +166,7 @@
   const FIELD_BY_KEY = Object.fromEntries(FIELDS.map((f) => [f.key, f]));
 
   // ---------------------------------------------------------------------------
-  // Presets — representative, not specific production vehicles.
+  // Presets: representative values, not specific production vehicles.
   // ---------------------------------------------------------------------------
   const COMMON = {
     mfC: 1.3, mfE: -1.0, nC: 0.8, kMu: 0.1, slideRatio: 0.8, sigma: 0.3,
@@ -384,8 +384,8 @@
     }
     if (d.dynIndex < 0.5 || d.dynIndex > 1.6) {
       w.push({ level: 'warn',
-        ko: `요 동적 지수 Izz/(m·a·b) = ${d.dynIndex.toFixed(2)} 이 일반 범위(0.5–1.6)를 벗어났습니다. 요 관성을 확인하세요.`,
-        en: `Yaw dynamic index Izz/(m·a·b) = ${d.dynIndex.toFixed(2)} is outside the usual 0.5–1.6 range. Check the yaw inertia.` });
+        ko: `요 동적 지수 Izz/(m·a·b) = ${d.dynIndex.toFixed(2)} 이 일반 범위(0.5~1.6)를 벗어났습니다. 요 관성을 확인하세요.`,
+        en: `Yaw dynamic index Izz/(m·a·b) = ${d.dynIndex.toFixed(2)} is outside the usual range of 0.5 to 1.6. Check the yaw inertia.` });
     }
     if (d.balance === 'oversteer') {
       w.push({ level: 'info',

@@ -49,7 +49,7 @@
 
   /**
    * Transfer functions from steering-wheel angle at s = jω.
-   * Returns complex gains: r/δsw [1/s], ay/δsw [(m/s²)/rad], β/δsw [–].
+   * Returns complex gains: r/δsw [1/s], ay/δsw [(m/s²)/rad], β/δsw [-].
    */
   function tfAt(p, v, w) {
     const { A, B } = matrices(p, v);
@@ -108,7 +108,7 @@
     const ss = steadyGains(p, v);
     // frequency-domain characteristic values (ISO 7401 style)
     const fgrid = [];
-    for (let k = 0; k <= 400; k++) fgrid.push(0.01 * Math.pow(10, (k / 400) * 3)); // 0.01–10 Hz
+    for (let k = 0; k <= 400; k++) fgrid.push(0.01 * Math.pow(10, (k / 400) * 3)); // 0.01 to 10 Hz
     let peakF = 0, peakMag = 0, bw = NaN;
     const g0 = Math.abs(ss.r);
     for (const f of fgrid) {

@@ -24,7 +24,7 @@ npm test          # or: node tests/run.js
 | 12 | Linear yaw-rate gain peaks at the characteristic speed | 1 % |
 | 13 | Oversteering vehicle changes from stable to unstable across v_crit | eigenvalue sign |
 | 14 | Coast-down deceleration equals drag + rolling resistance | 1 % |
-| 15 | ABS straight braking MFDD ≈ η·μ·g | 0.88–0.95 g |
+| 15 | ABS straight braking MFDD ≈ η·μ·g | 0.88 to 0.95 g |
 | 16 | Without ABS hard braking locks the wheels | lock state |
 | 17 | μ-split braking yaws toward the high-μ side | sign |
 | 18 | FMVSS 126: sedan with ESC passes | verdict |
@@ -34,8 +34,8 @@ npm test          # or: node tests/run.js
 | 22 | ISO 3888-1 lane widths and track length | exact |
 | 23 | Closed-loop: sedan passes ISO 3888-1 at 80 km/h | verdict |
 | 24 | Rollover-prone vehicle reports wheel lift on the skid pad | warning |
-| 25 | Parameter sanitiser clamps values and drops unknown keys | — |
-| 26 | Steering-table parser rejects malformed input | — |
+| 25 | Parameter sanitiser clamps values and drops unknown keys | - |
+| 26 | Steering-table parser rejects malformed input | - |
 | 27 | Every test procedure runs on every preset without diverging | finite states |
 
 ## Scope of verification

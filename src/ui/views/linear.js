@@ -32,7 +32,7 @@
     const speedsErr = h('div', { class: 'field-error', hidden: true });
     speedsField.addEventListener('change', () => {
       const vals = speedsField.value.split(/[,\s;]+/).map(Number).filter((x) => Number.isFinite(x) && x >= 5 && x <= 400);
-      if (!vals.length) { speedsErr.hidden = false; clear(speedsErr).append(...tx('5–400 km/h 범위의 속도를 쉼표로 구분해 입력하세요.', 'Enter speeds between 5 and 400 km/h, separated by commas.')); return; }
+      if (!vals.length) { speedsErr.hidden = false; clear(speedsErr).append(...tx('5~400 km/h 범위의 속도를 쉼표로 구분해 입력하세요.', 'Enter speeds between 5 and 400 km/h, separated by commas.')); return; }
       speedsErr.hidden = true;
       st.speeds = Array.from(new Set(vals.map((x) => Math.round(x)))).sort((a, b) => a - b).slice(0, 5);
       speedsField.value = st.speeds.join(', ');
@@ -71,18 +71,18 @@
     };
     card('gain', { ko: '정상상태 요 레이트 이득', en: 'Steady-state yaw-rate gain' }, { ko: 'r/δsw vs 차속 · 파선: 뉴트럴 스티어', en: 'r/δsw vs speed · dashed: neutral steer' },
       { x: { label: { ko: '차속', en: 'speed' }, unit: 'km/h' }, y: { label: '', unit: '1/s', zero: true }, hover: 'x' });
-    card('mag', { ko: '주파수 응답 — 이득', en: 'Frequency response — gain' }, null,
+    card('mag', { ko: '주파수 응답: 이득', en: 'Frequency response: gain' }, null,
       { x: { label: { ko: '주파수', en: 'frequency' }, unit: 'Hz', log: true }, y: { label: '', unit: '', zero: true }, hover: 'x', group: 'bode', syncX: true });
-    card('phase', { ko: '주파수 응답 — 위상', en: 'Frequency response — phase' }, null,
+    card('phase', { ko: '주파수 응답: 위상', en: 'Frequency response: phase' }, null,
       { x: { label: { ko: '주파수', en: 'frequency' }, unit: 'Hz', log: true }, y: { label: '', unit: 'deg', step: 45 }, hover: 'x', group: 'bode', syncX: true });
     card('root', { ko: '근궤적 (차속 변화)', en: 'Root locus over speed' }, { ko: '고유값 λ = σ ± jω, 20 km/h부터 · 범례: 차속 구간', en: 'Eigenvalues λ = σ ± jω from 20 km/h · legend: speed band' },
       { x: { label: 'σ', unit: '1/s' }, y: { label: 'jω', unit: 'rad/s' }, hover: 'nearest' });
     card('fn', { ko: '요 고유진동수', en: 'Yaw natural frequency' }, null,
       { x: { label: { ko: '차속', en: 'speed' }, unit: 'km/h' }, y: { label: '', unit: 'Hz', zero: true }, hover: 'x', group: 'spd', syncX: true });
     card('zeta', { ko: '요 감쇠비', en: 'Yaw damping ratio' }, null,
-      { x: { label: { ko: '차속', en: 'speed' }, unit: 'km/h' }, y: { label: '', unit: '–', zero: true }, hover: 'x', group: 'spd', syncX: true });
+      { x: { label: { ko: '차속', en: 'speed' }, unit: 'km/h' }, y: { label: '', unit: '-', zero: true }, hover: 'x', group: 'spd', syncX: true });
     card('step', { ko: '정규화 스텝 응답', en: 'Normalised step response' }, { ko: '요 레이트 r(t)/r_ss, 이상적 스텝 조향', en: 'Yaw rate r(t)/r_ss for an ideal steering step' },
-      { x: { label: { ko: '시간', en: 'time' }, unit: 's' }, y: { label: '', unit: '–', zero: true }, hover: 'x' }, true);
+      { x: { label: { ko: '시간', en: 'time' }, unit: 's' }, y: { label: '', unit: '-', zero: true }, hover: 'x' }, true);
 
     const main = h('section', { class: 'main' }, grid);
     asideHost = h('div', { class: 'panel-body', style: { display: 'grid', gap: '14px' } });
@@ -160,7 +160,7 @@
     const anSel = LIN.analyze(p, st.v * KPH);
     plots.root.setData({ series: [
       ...buckets.map((bk, i) => ({ x: bk.x, y: bk.y, kind: 'points', r: 3, color: `--seq-${i + 1}`,
-        label: `${Math.round(v0 + i * step)}–${Math.round(v0 + (i + 1) * step)} km/h` })),
+        label: `${Math.round(v0 + i * step)}-${Math.round(v0 + (i + 1) * step)} km/h` })),
       { x: anSel.eig.map((e) => e[0]), y: anSel.eig.map((e) => e[1]), kind: 'points', r: 6, color: '--series-2', label: `${st.v} km/h` },
     ] });
     plots.fn.setData({ series: [{ x: vSp, y: fn, color: '--series-1', label: 'f_n', digits: 3 }], vlines: [{ x: st.v, label: `${st.v} km/h` }] });

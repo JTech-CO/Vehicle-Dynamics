@@ -1,7 +1,7 @@
 /*!
  * DOM helpers, bilingual text, formatting, file I/O. MIT License.
  *
- * Text is always inserted with textContent / createTextNode — never as HTML —
+ * Text is always inserted with textContent / createTextNode (never as HTML),
  * so imported files and user input cannot inject markup.
  *
  * Bilingual strings: `tx(ko, en)` produces a pair of spans with lang
@@ -114,7 +114,7 @@
   // Formatting
   // ---------------------------------------------------------------------------
   function fmt(v, digits, opts) {
-    if (v === null || v === undefined || !Number.isFinite(v)) return '—';
+    if (v === null || v === undefined || !Number.isFinite(v)) return '-';
     const d = digits === undefined ? 2 : digits;
     let str = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: !(opts && opts.noGroup) });
     if (v < 0 && Number(str.replace(/,/g, '')) !== 0) str = '−' + str;
@@ -122,7 +122,7 @@
   }
   /** Compact formatting with sensible precision for axis ticks and readouts. */
   function fmtAuto(v) {
-    if (!Number.isFinite(v)) return '—';
+    if (!Number.isFinite(v)) return '-';
     const a = Math.abs(v);
     if (a !== 0 && (a >= 1e6 || a < 1e-3)) return v.toExponential(2).replace('-', '−');
     const d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3;

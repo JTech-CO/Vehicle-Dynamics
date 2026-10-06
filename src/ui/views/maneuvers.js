@@ -38,7 +38,7 @@
       const og = h('optgroup'); bind(og, 'label', MAN.GROUP_LABEL[grp]);
       for (const m of MAN.LIST.filter((x) => x.group === grp)) {
         const o = h('option', { value: m.id });
-        bind(o, 'text', { ko: `${m.name.ko}${m.standard !== '—' ? ' · ' + m.standard : ''}`, en: `${m.name.en}${m.standard !== '—' ? ' · ' + m.standard : ''}` });
+        bind(o, 'text', { ko: `${m.name.ko}${m.standard !== '-' ? ' · ' + m.standard : ''}`, en: `${m.name.en}${m.standard !== '-' ? ' · ' + m.standard : ''}` });
         og.appendChild(o);
       }
       manSel.appendChild(og);
@@ -156,7 +156,7 @@
   function renderParams() {
     const m = man(), p = mp();
     clear(descHost).append(
-      h('div', { class: 'btn-row', style: { gap: '6px' } }, m.standard !== '—' ? h('span', { class: 'badge std' }, m.standard) : null),
+      h('div', { class: 'btn-row', style: { gap: '6px' } }, m.standard !== '-' ? h('span', { class: 'badge std' }, m.standard) : null),
       h('p', { class: 'muted', style: { margin: 0, fontSize: 'var(--fs-sm)' } }, tx(m.desc)));
     clear(paramHost);
     for (const q of m.params) {
@@ -193,7 +193,7 @@
     const save = () => { store.saveAnalysis(); emit('settings'); };
     clear(settingsHost);
     settingsHost.append(
-      VD.forms.number({ key: 'mu', label: { ko: '노면 마찰계수 (배율)', en: 'Road friction (scale)' }, sym: 'μ', sub: 'road', unit: '–', min: 0.05, max: 1.5, step: 0.05,
+      VD.forms.number({ key: 'mu', label: { ko: '노면 마찰계수 (배율)', en: 'Road friction (scale)' }, sym: 'μ', sub: 'road', unit: '-', min: 0.05, max: 1.5, step: 0.05,
         hint: { ko: '타이어 μ에 곱해지는 노면 계수. 건조 1.0, 젖음 ≈0.7, 눈 ≈0.3, 빙판 ≈0.1', en: 'Multiplies tire μ. Dry 1.0, wet ≈0.7, snow ≈0.3, ice ≈0.1' } },
       st.mu, (v) => { st.mu = v; save(); }),
       VD.forms.select({ key: 'tire', label: { ko: '타이어 모델', en: 'Tire model' }, options: [
@@ -224,7 +224,7 @@
   function sweepTargets() {
     const out = [];
     for (const q of man().params) if (q.type === 'number') out.push({ value: 'm:' + q.key, label: { ko: `[시험] ${q.label.ko}`, en: `[Test] ${q.label.en}` }, unit: q.unit, min: q.min, max: q.max, def: mp()[q.key], step: q.step });
-    out.push({ value: 's:mu', label: { ko: '[노면] 마찰계수', en: '[Road] friction' }, unit: '–', min: 0.05, max: 1.5, def: S().settings.mu, step: 0.05 });
+    out.push({ value: 's:mu', label: { ko: '[노면] 마찰계수', en: '[Road] friction' }, unit: '-', min: 0.05, max: 1.5, def: S().settings.mu, step: 0.05 });
     for (const f of VD.params.FIELDS) if (f.type === 'number') out.push({ value: 'v:' + f.key, label: { ko: `[차량] ${f.label.ko}`, en: `[Vehicle] ${f.label.en}` }, sym: f.sym ? f.sym + (f.sub || '') : null, unit: f.unit, min: f.min, max: f.max, def: store.state.vehicle[f.key], step: f.step });
     return out;
   }
@@ -250,7 +250,7 @@
     clear(sweepHost).append(
       h('div', { class: 'field wide' }, h('label', { class: 'field-label', for: 'sw-target' }, tx('변경할 매개변수', 'Parameter')), sel),
       fromHost, toHost,
-      VD.forms.number({ key: 'n', label: { ko: '단계 수', en: 'Steps' }, unit: '–', min: 2, max: store.MAX_RUNS, step: 1 }, state.n, (v) => { state.n = Math.round(v); }),
+      VD.forms.number({ key: 'n', label: { ko: '단계 수', en: 'Steps' }, unit: '-', min: 2, max: store.MAX_RUNS, step: 1 }, state.n, (v) => { state.n = Math.round(v); }),
       h('p', { class: 'muted', style: { margin: 0, fontSize: 'var(--fs-xs)' } },
         tx('각 값마다 한 번씩 실행하여 실행 목록에 추가합니다. 기존 실행은 지워집니다.', 'Runs once per value and adds each to the run list. Existing runs are cleared.')),
       h('button', { type: 'button', class: 'btn', on: { click: () => runSweep(state) } }, icon('sweep'), tx('스윕 실행', 'Run sweep')));
@@ -338,7 +338,7 @@
       try {
         const r = execute(VD.params.sanitize(veh, store.state.vehicle).params, mpv, st);
         const name = t.sym || L(t.label).replace(/^\[[^\]]*\]\s*/, '');
-        const lbl = `${name} = ${fmt(val, Math.abs(val) >= 100 ? 0 : 3)}${t.unit === '–' ? '' : ' ' + t.unit}`;
+        const lbl = `${name} = ${fmt(val, Math.abs(val) >= 100 ? 0 : 3)}${t.unit === '-' ? '' : ' ' + t.unit}`;
         store.addRun(r, lbl, { tag: lbl, sweep: { id: sweepId, value: val, label: t.label, unit: t.unit } });
       } catch (e) {
         console.error(e);
@@ -367,7 +367,7 @@
     const sel = h('select', { class: 'select', style: { height: '26px', fontSize: 'var(--fs-sm)' } });
     if (addMode) { const o = h('option', { value: '' }); bind(o, 'text', { ko: '+ 플롯 추가…', en: '+ Add plot…' }); sel.appendChild(o); }
     const og0 = h('optgroup'); bind(og0, 'label', { ko: '궤적', en: 'Trajectory' });
-    const ox = h('option', { value: 'xy' }); bind(ox, 'text', { ko: '주행 궤적 X–Y', en: 'Path X–Y' }); og0.appendChild(ox);
+    const ox = h('option', { value: 'xy' }); bind(ox, 'text', { ko: '주행 궤적 X-Y', en: 'Path X-Y' }); og0.appendChild(ox);
     sel.appendChild(og0);
     const og1 = h('optgroup'); bind(og1, 'label', { ko: '차량 채널', en: 'Vehicle channels' });
     for (const c of VD.sim.CHANNELS) {
@@ -447,7 +447,7 @@
     return null;
   }
 
-  /** Runs of the selected procedure only — different tests are not overlaid. */
+  /** Runs of the selected procedure only; different tests are not overlaid. */
   const shownRuns = () => store.visibleRuns().filter((r) => r.result.maneuver === S().maneuver);
 
   function renderPlotsData() {
@@ -717,7 +717,7 @@
     const xs = runs.map((r) => r.sweep.value);
     const ys = runs.map((r) => { const q = r.result.metrics.find((m) => m.id === sweepMetric); return q && q.value !== null ? q.value : NaN; });
     const order = xs.map((x, i) => i).sort((a, b) => xs[a] - xs[b]);
-    sweepPlot = new VD.Plot(host, { x: { label: '', unit: sw.unit === '–' ? '' : sw.unit }, y: { label: '', unit: mm.unit }, size: 'short', hover: 'x', legend: false });
+    sweepPlot = new VD.Plot(host, { x: { label: '', unit: sw.unit === '-' ? '' : sw.unit }, y: { label: '', unit: mm.unit }, size: 'short', hover: 'x', legend: false });
     sweepPlot.setData({ series: [
       { x: order.map((i) => xs[i]), y: order.map((i) => ys[i]), color: '--ink-3', width: 1.5, label: mm.label, hover: false },
       ...order.map((i) => ({ x: [xs[i]], y: [ys[i]], color: `--series-${runs[i].slot}`, kind: 'points', r: 5, label: runs[i].label, hover: false })),

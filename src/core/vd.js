@@ -1,5 +1,5 @@
 /*!
- * Vehicle Dynamics Workbench — core namespace and math helpers
+ * Vehicle Dynamics Workbench - core namespace and math helpers
  * (c) Vehicle Dynamics Workbench contributors, MIT License
  *
  * Every core file attaches itself to the global `VD` namespace so the app runs

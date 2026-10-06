@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 — 2026-10-06
+## 1.0.0 (2026-10-06)
 
 First release. Merges the two legacy programs (`legacy/`) into one static application.
 
